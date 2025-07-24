@@ -23,8 +23,6 @@ import {
 	HiOutlineRefresh,
 	HiOutlineTrendingUp,
 	HiOutlineCheckCircle,
-	HiOutlineCurrencyDollar,
-	HiOutlineUserPlus,
 	HiOutlineEyeOff,
 	HiOutlineClipboardCopy,
 	HiOutlineXCircle,
