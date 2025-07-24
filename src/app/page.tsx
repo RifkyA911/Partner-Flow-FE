@@ -7,6 +7,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import Link from "next/link";
 
 export default function Home() {
 	return (
@@ -93,9 +94,11 @@ export default function Home() {
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="text-center">
-							<Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-medium mb-3">
-								Login as Partner
-							</Button>
+							<Link href="/partners">
+								<Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-medium mb-3">
+									Login as Partner
+								</Button>
+							</Link>
 							<p className="text-sm text-gray-500">
 								Use your referral code to access your dashboard
 							</p>
@@ -117,9 +120,11 @@ export default function Home() {
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="text-center">
-							<Button className="w-full bg-red-600 hover:bg-red-700 text-white py-3 text-lg font-medium mb-3">
-								Admin Dashboard
-							</Button>
+							<Link href="/auth/register">
+								<Button className="w-full bg-red-600 hover:bg-red-700 text-white py-3 text-lg font-medium mb-3">
+									Admin Dashboard
+								</Button>
+							</Link>
 							<p className="text-sm text-red-600">
 								Administrative access required
 							</p>

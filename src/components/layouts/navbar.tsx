@@ -3,6 +3,7 @@ import { usePathname } from "next/navigation";
 import { Network, Plus, Download, Eye, LogOut, Menu, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { useState } from "react";
+import Link from "next/link";
 
 export function NavbarMenu() {
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -15,12 +16,12 @@ export function NavbarMenu() {
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="flex items-center justify-between h-16">
 					{/* Logo and Title */}
-					<div className="flex items-center gap-3">
+					<Link href="/" className="flex items-center gap-3">
 						<Network className="w-6 h-6 text-blue-600" />
 						<h1 className="text-lg sm:text-xl font-semibold text-gray-900">
 							Partner Referral Hub - Admin
 						</h1>
-					</div>
+					</Link>
 
 					{/* Desktop Navigation */}
 					<div className="hidden md:flex items-center gap-2 lg:gap-3">
@@ -66,13 +67,15 @@ export function NavbarMenu() {
 							<span className="hidden lg:inline">Logout</span>
 							<span className="lg:hidden">Logout</span>
 						</Button>
-						<Button
-							variant="outline"
-							size="sm"
-							className="bg-transparent"
-						>
-							Admin
-						</Button>
+						<Link href="/admin">
+							<Button
+								variant="outline"
+								size="sm"
+								className="bg-transparent"
+							>
+								Admin
+							</Button>
+						</Link>
 					</div>
 
 					{/* Mobile menu button */}
