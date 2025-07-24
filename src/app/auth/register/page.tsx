@@ -22,10 +22,24 @@ export default function RegisterPartner() {
 			HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
 		>
 	) => {
-		const { name, value, type, checked } = e.target;
+		const target = e.target;
+		const { name, type, value } = target;
+
+		let newValue: unknown;
+
+		if (type === "checkbox" && "checked" in target) {
+			newValue = (target as HTMLInputElement).checked;
+		} else if (type === "file" && "files" in target) {
+			newValue = (target as HTMLInputElement).files?.[0] ?? null;
+		} else if (type === "number") {
+			newValue = Number(value);
+		} else {
+			newValue = value;
+		}
+
 		setForm((prev) => ({
 			...prev,
-			[name]: type === "checkbox" ? checked : value,
+			[name]: newValue,
 		}));
 	};
 
