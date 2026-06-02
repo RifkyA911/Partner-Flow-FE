@@ -2,26 +2,26 @@
 
 # Aice Tangsel — Referral Partners Platform
 
-Platform referral partner untuk **Aice** wilayah Tangerang Selatan.
+A referral partner platform for **Aice** in the Tangerang Selatan region, built with **Next.js**.
 
-## Fitur
+## Features
 
-- Sistem referral dengan kode unik
-- Dashboard partner
-- Pelacakan komisi
-- Manajemen data partner
+- Referral system with unique codes
+- Partner dashboard
+- Commission tracking
+- Partner data management
 
-## Cara Menjalankan
+## Getting Started
 
 `ash
 npm install
 npm run dev
 `
 
-Buka http://localhost:3000.
+Open http://localhost:3000.
 
 ## Tech Stack
 
 - Framework: Next.js
-- Bahasa: TypeScript
+- Language: TypeScript
 - Styling: Tailwind CSS
