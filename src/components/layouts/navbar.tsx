@@ -1,92 +1,137 @@
 "use client";
 import { usePathname } from "next/navigation";
-import { Network, Plus, Download, Eye, LogOut, Menu, X } from "lucide-react";
+import { ArrowRight, LogIn, Menu, X, Zap, Sun, Moon } from "lucide-react";
 import { Button } from "../ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 export function NavbarMenu() {
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+	const [isDark, setIsDark] = useState(true);
 	const pathname = usePathname();
 
-	if (pathname === "/auth/register") return null;
+	const isHomePage = pathname === "/";
+
+	useEffect(() => {
+		setIsDark(document.documentElement.classList.contains("dark"));
+	}, []);
+
+	const toggleTheme = () => {
+		const newIsDark = !isDark;
+		setIsDark(newIsDark);
+		document.documentElement.classList.toggle("dark", newIsDark);
+		localStorage.setItem("theme", newIsDark ? "dark" : "light");
+	};
+
+	// Show navbar on register page with back button
+	if (pathname === "/auth/register") {
+		return (
+			<header className={`w-full backdrop-blur-lg border-b sticky top-0 z-50 ${isDark ? "bg-slate-950/80 border-white/10" : "bg-white/90 border-gray-200"}`}>
+				<div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+					<div className="flex items-center justify-between h-14">
+						{/* Back button */}
+						<Link href="/" className="flex items-center gap-2 group">
+							<Button variant="ghost" size="sm" className={`${isDark ? "text-gray-300 hover:text-white hover:bg-white/10" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"}`}>
+								<ArrowRight className="w-4 h-4 rotate-180" />
+							</Button>
+							<div className="flex items-center gap-2">
+								<div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+									<Zap className="w-5 h-5 text-white" />
+								</div>
+								<h1 className={`text-lg font-bold bg-gradient-to-r ${isDark ? "from-white to-gray-300" : "from-gray-900 to-gray-700"} bg-clip-text text-transparent`}>
+									Partner Flow
+								</h1>
+							</div>
+						</Link>
+
+						{/* Theme toggle */}
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={toggleTheme}
+							className={`${isDark ? "text-gray-300 hover:text-white hover:bg-white/10" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} transition-all`}
+						>
+							{isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+						</Button>
+					</div>
+				</div>
+			</header>
+		);
+	}
 
 	return (
-		<header className="w-full bg-white border-b-2 border-gray-200">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="flex items-center justify-between h-16">
+		<header className={`w-full backdrop-blur-lg border-b sticky top-0 z-50 ${isDark ? "bg-slate-950/80 border-white/10" : "bg-white/90 border-gray-200"}`}>
+			<div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="flex items-center justify-between h-14">
 					{/* Logo and Title */}
-					<Link href="/" className="flex items-center gap-3">
-						<Network className="w-6 h-6 text-blue-600" />
-						<h1 className="text-lg sm:text-xl font-semibold text-gray-900">
-							Partner Referral Hub - Admin
-						</h1>
+					<Link href="/" className="flex items-center gap-2 group">
+						<div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+							<Zap className="w-5 h-5 text-white" />
+						</div>
+						<div>
+							<h1 className={`text-lg font-bold bg-gradient-to-r ${isDark ? "from-white to-gray-300" : "from-gray-900 to-gray-700"} bg-clip-text text-transparent`}>
+								Partner Flow
+							</h1>
+							<p className={`text-xs hidden sm:block ${isDark ? "text-gray-400" : "text-gray-600"}`}>Referral Platform</p>
+						</div>
 					</Link>
 
 					{/* Desktop Navigation */}
-					<div className="hidden md:flex items-center gap-2 lg:gap-3">
-						<Button
-							variant="outline"
-							size="sm"
-							className="gap-2 bg-transparent text-xs lg:text-sm"
-						>
-							<Plus className="w-4 h-4" />
-							<span className="hidden lg:inline">
-								Import Partners
-							</span>
-							<span className="lg:hidden">Import</span>
-						</Button>
-						<Button
-							variant="outline"
-							size="sm"
-							className="gap-2 bg-transparent text-xs lg:text-sm"
-						>
-							<Download className="w-4 h-4" />
-							<span className="hidden lg:inline">
-								Download Reports
-							</span>
-							<span className="lg:hidden">Download</span>
-						</Button>
-						<Button
-							variant="outline"
-							size="sm"
-							className="gap-2 bg-transparent text-xs lg:text-sm"
-						>
-							<Eye className="w-4 h-4" />
-							<span className="hidden lg:inline">
-								Customer View
-							</span>
-							<span className="lg:hidden">View</span>
-						</Button>
-						<Button
-							variant="outline"
-							size="sm"
-							className="gap-2 bg-transparent text-xs lg:text-sm"
-						>
-							<LogOut className="w-4 h-4" />
-							<span className="hidden lg:inline">Logout</span>
-							<span className="lg:hidden">Logout</span>
-						</Button>
-						<Link href="/admin">
+					<div className="hidden md:flex items-center gap-4">
+						{isHomePage && (
+							<nav className="flex items-center gap-4">
+								<a href="#features" className={`${isDark ? "text-gray-300 hover:text-white" : "text-gray-600 hover:text-gray-900"} transition-colors text-xs font-medium`}>
+									Features
+								</a>
+								<a href="#how-it-works" className={`${isDark ? "text-gray-300 hover:text-white" : "text-gray-600 hover:text-gray-900"} transition-colors text-xs font-medium`}>
+									How It Works
+								</a>
+								<a href="#benefits" className={`${isDark ? "text-gray-300 hover:text-white" : "text-gray-600 hover:text-gray-900"} transition-colors text-xs font-medium`}>
+									Benefits
+								</a>
+							</nav>
+						)}
+
+						<div className="flex items-center gap-2">
 							<Button
-								variant="outline"
+								variant="ghost"
 								size="sm"
-								className="bg-transparent"
+								onClick={toggleTheme}
+								className={`${isDark ? "text-gray-300 hover:text-white hover:bg-white/10" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} transition-all`}
 							>
-								Admin
+								{isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
 							</Button>
-						</Link>
+							<Link href="/auth/login">
+								<Button
+									variant="ghost"
+									size="sm"
+									className={`${isDark ? "text-gray-300 hover:text-white hover:bg-white/10" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} transition-all text-xs`}
+								>
+									<LogIn className="w-3 h-3 mr-1" />
+									Login
+								</Button>
+							</Link>
+							<Link href="/auth/register">
+								<Button
+									size="sm"
+									className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg hover:shadow-xl transition-all duration-300 text-xs"
+								>
+									Get Started
+									<ArrowRight className="w-3 h-3 ml-1" />
+								</Button>
+							</Link>
+						</div>
 					</div>
 
 					{/* Mobile menu button */}
 					<div className="md:hidden">
 						<Button
-							variant="outline"
+							variant="ghost"
 							size="sm"
 							onClick={() =>
 								setIsMobileMenuOpen(!isMobileMenuOpen)
 							}
-							className="gap-2 bg-transparent"
+							className={`${isDark ? "text-gray-300 hover:text-white hover:bg-white/10" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"}`}
 						>
 							{isMobileMenuOpen ? (
 								<X className="w-4 h-4" />
@@ -99,47 +144,64 @@ export function NavbarMenu() {
 
 				{/* Mobile Navigation */}
 				{isMobileMenuOpen && (
-					<div className="md:hidden py-4 border-t border-gray-200">
+					<div className={`md:hidden py-4 border-t animate-in slide-in-from-top-2 ${isDark ? "border-white/10" : "border-gray-200"}`}>
 						<div className="flex flex-col gap-2">
-							<Button
-								variant="outline"
-								size="sm"
-								className="gap-2 bg-transparent justify-start"
-							>
-								<Plus className="w-4 h-4" />
-								Import Partners
-							</Button>
-							<Button
-								variant="outline"
-								size="sm"
-								className="gap-2 bg-transparent justify-start"
-							>
-								<Download className="w-4 h-4" />
-								Download Reports
-							</Button>
-							<Button
-								variant="outline"
-								size="sm"
-								className="gap-2 bg-transparent justify-start"
-							>
-								<Eye className="w-4 h-4" />
-								Customer View
-							</Button>
-							<Button
-								variant="outline"
-								size="sm"
-								className="gap-2 bg-transparent justify-start"
-							>
-								<LogOut className="w-4 h-4" />
-								Logout
-							</Button>
-							<Button
-								variant="outline"
-								size="sm"
-								className="bg-transparent"
-							>
-								Admin
-							</Button>
+							{isHomePage && (
+								<>
+									<a
+										href="#features"
+										className={`${isDark ? "text-gray-300 hover:text-white" : "text-gray-600 hover:text-gray-900"} transition-colors text-sm font-medium py-2`}
+										onClick={() => setIsMobileMenuOpen(false)}
+									>
+										Features
+									</a>
+									<a
+										href="#how-it-works"
+										className={`${isDark ? "text-gray-300 hover:text-white" : "text-gray-600 hover:text-gray-900"} transition-colors text-sm font-medium py-2`}
+										onClick={() => setIsMobileMenuOpen(false)}
+									>
+										How It Works
+									</a>
+									<a
+										href="#benefits"
+										className={`${isDark ? "text-gray-300 hover:text-white" : "text-gray-600 hover:text-gray-900"} transition-colors text-sm font-medium py-2`}
+										onClick={() => setIsMobileMenuOpen(false)}
+									>
+										Benefits
+									</a>
+								</>
+							)}
+							<div className="flex items-center gap-2 pt-2">
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={toggleTheme}
+									className={`${isDark ? "text-gray-300 hover:text-white hover:bg-white/10" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"} transition-all`}
+								>
+									{isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+								</Button>
+							</div>
+							<div className="flex flex-col gap-2 pt-2">
+								<Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
+									<Button
+										variant="outline"
+										size="sm"
+										className={`w-full justify-start ${isDark ? "border-white/20 text-gray-300 hover:text-white hover:bg-white/10" : "border-gray-300 text-gray-600 hover:text-gray-900 hover:bg-gray-100"}`}
+									>
+										<LogIn className="w-4 h-4 mr-2" />
+										Login
+									</Button>
+								</Link>
+								<Link href="/auth/register" onClick={() => setIsMobileMenuOpen(false)}>
+									<Button
+										size="sm"
+										className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+									>
+										Get Started
+										<ArrowRight className="w-4 h-4 ml-2" />
+									</Button>
+								</Link>
+							</div>
 						</div>
 					</div>
 				)}
