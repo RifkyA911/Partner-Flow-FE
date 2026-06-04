@@ -1,8 +1,13 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -39,18 +44,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
-        token.role = user.role;
+        token.id = user.id;
+        token.role = user.role || "partner";
         token.partner_code = user.partner_code;
+        token.isNewUser = !user.role; // Flag for first-time users
+      }
+      if (account?.provider === "google" && token.isNewUser) {
+        token.isNewUser = true;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.sub!;
+        session.user.id = token.id as string;
         session.user.role = token.role as string;
         session.user.partner_code = token.partner_code as string;
+        (session.user as any).isNewUser = token.isNewUser as boolean;
       }
       return session;
     },

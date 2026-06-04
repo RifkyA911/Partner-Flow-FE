@@ -1,26 +1,46 @@
 "use client";
 
-import { useState } from "react";
-import { FaShippingFast, FaHeadset } from "react-icons/fa";
-import { FaRegMoneyBillAlt } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Zap, Mail, Lock, Building2, User, Phone, MapPin, Briefcase, ArrowRight, Gift, TrendingUp, Users } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
 
-export default function RegisterPartner() {
+export default function RegisterPage() {
+	const router = useRouter();
+	const searchParams = useSearchParams();
+	const [isDark, setIsDark] = useState(true);
 	const [form, setForm] = useState({
-		company: "",
+		company_name: "",
 		industry: "",
-		contact: "",
+		contact_person: "",
 		email: "",
 		phone: "",
-		volume: "",
+		monthly_volume: "",
 		address: "",
+		password: "",
+		confirmPassword: "",
 		agree: false,
-		marketing: false,
+		marketing_consent: false,
 	});
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState("");
+	const referralCode = searchParams.get("ref");
+
+	useEffect(() => {
+		const checkTheme = () => setIsDark(document.documentElement.classList.contains("dark"));
+		checkTheme();
+
+		const observer = new MutationObserver(checkTheme);
+		observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+		return () => observer.disconnect();
+	}, []);
 
 	const handleChange = (
-		e: React.ChangeEvent<
-			HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-		>
+		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
 	) => {
 		const target = e.target;
 		const { name, type, value } = target;
@@ -29,10 +49,6 @@ export default function RegisterPartner() {
 
 		if (type === "checkbox" && "checked" in target) {
 			newValue = (target as HTMLInputElement).checked;
-		} else if (type === "file" && "files" in target) {
-			newValue = (target as HTMLInputElement).files?.[0] ?? null;
-		} else if (type === "number") {
-			newValue = Number(value);
 		} else {
 			newValue = value;
 		}
@@ -43,204 +59,365 @@ export default function RegisterPartner() {
 		}));
 	};
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		// TODO: handle registration logic
-		alert("Registration submitted!");
+		setLoading(true);
+		setError("");
+
+		if (form.password !== form.confirmPassword) {
+			setError("Passwords do not match");
+			setLoading(false);
+			return;
+		}
+
+		try {
+			const res = await fetch("/api/auth/register", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					company_name: form.company_name,
+					industry: form.industry,
+					contact_person: form.contact_person,
+					email: form.email,
+					phone: form.phone,
+					monthly_volume: form.monthly_volume,
+					address: form.address,
+					password: form.password,
+					referred_by: referralCode || undefined,
+					marketing_consent: form.marketing_consent,
+				}),
+			});
+
+			const data = await res.json();
+
+			if (data.success) {
+				router.push("/auth/login?registered=true");
+			} else {
+				setError(data.error || "Registration failed");
+			}
+		} catch (err) {
+			setError("An error occurred. Please try again.");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleGoogleSignIn = async () => {
+		setLoading(true);
+		try {
+			const result = await signIn("google", { callbackUrl: "/auth/onboarding" });
+			if ((result as any)?.error) {
+				setError("Google sign in failed");
+			}
+		} catch (err) {
+			setError("An error occurred with Google sign in");
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	return (
-		<main className="min-h-screen bg-gray-50 flex flex-col items-center py-8 px-2 sm:px-6 lg:px-8 sm:py-6 w-full max-w-7xl mx-auto">
-			{/* Referral Banner */}
-			<div className="w-full max-w-xl bg-green-600 rounded-lg p-6 mb-8 flex flex-col items-center text-white text-center">
-				<div className="text-4xl mb-2">🎁</div>
-				<h2 className="text-xl font-semibold mb-1">
-					Welcome! You've been referred by a trusted partner
-				</h2>
-				<p className="mb-3">
-					Join our distribution network and get exclusive benefits
-				</p>
-				<div className="bg-green-700 rounded-md px-4 py-1 text-sm font-medium inline-block">
-					Referred by:{" "}
-					<span className="font-bold">TK. IWAN - CIPUTAT (D)</span>
+		<main className={`min-h-screen flex items-center py-16 justify-center px-4 ${isDark ? "bg-slate-950 text-white" : "bg-gray-50 text-gray-900"}`}>
+			<div className="w-full max-w-2xl">
+				{/* Logo */}
+				<div className="flex items-center justify-center gap-2 mb-6">
+					<div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+						<Zap className="w-5 h-5 text-white" />
+					</div>
+					<h1 className={`text-xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>Partner Flow</h1>
 				</div>
-			</div>
 
-			{/* Features */}
-			<div className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
-				<div className="flex flex-col items-center text-center">
-					<FaShippingFast className="text-blue-500 text-2xl mb-2" />
-					<div className="font-semibold">Fast Delivery</div>
-					<div className="text-sm text-gray-600">
-						Quick and reliable distribution network across the
-						region
-					</div>
-				</div>
-				<div className="flex flex-col items-center text-center">
-					<FaRegMoneyBillAlt className="text-green-600 text-2xl mb-2" />
-					<div className="font-semibold">Competitive Pricing</div>
-					<div className="text-sm text-gray-600">
-						Best rates in the market with volume discounts
-					</div>
-				</div>
-				<div className="flex flex-col items-center text-center">
-					<FaHeadset className="text-orange-500 text-2xl mb-2" />
-					<div className="font-semibold">24/7 Support</div>
-					<div className="text-sm text-gray-600">
-						Round-the-clock customer service and technical support
-					</div>
-				</div>
-			</div>
+				{/* Referral Banner */}
+				{referralCode && (
+					<Card className={`${isDark ? "bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-blue-500/30" : "bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200"} backdrop-blur-xl rounded-xl mb-6`}>
+						<CardContent className="p-4">
+							<div className="flex items-center gap-3">
+								<div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? "bg-blue-500/20" : "bg-blue-100"}`}>
+									<Gift className={`w-5 h-5 ${isDark ? "text-blue-400" : "text-blue-600"}`} />
+								</div>
+								<div className="flex-1">
+									<p className={`text-sm font-medium ${isDark ? "text-white" : "text-gray-900"}`}>You've been invited!</p>
+									<p className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}>Join the referral network and start earning</p>
+								</div>
+								<div className={`px-3 py-1 rounded-full text-xs font-medium ${isDark ? "bg-blue-500/20 text-blue-400" : "bg-blue-100 text-blue-700"}`}>
+									Ref: {referralCode}
+								</div>
+							</div>
+						</CardContent>
+					</Card>
+				)}
 
-			{/* Registration Form */}
-			<form
-				onSubmit={handleSubmit}
-				className="w-full max-w-xl bg-white rounded-lg shadow p-6 flex flex-col gap-4"
-			>
-				<h3 className="text-xl font-bold text-center mb-2">
-					Create Your Account
-				</h3>
-				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-					<div>
-						<label className="block text-sm font-medium mb-1">
-							Company Name *
-						</label>
-						<input
-							name="company"
-							value={form.company}
-							onChange={handleChange}
-							required
-							className="w-full border rounded px-3 py-2 text-sm"
-							placeholder="Your Company Ltd."
-						/>
+				{/* Benefits */}
+				<div className="grid grid-cols-3 gap-3 mb-6">
+					<div className={`p-3 rounded-lg text-center ${isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"}`}>
+						<TrendingUp className={`w-5 h-5 mx-auto mb-1 ${isDark ? "text-blue-400" : "text-blue-600"}`} />
+						<p className={`text-xs font-medium ${isDark ? "text-white" : "text-gray-900"}`}>Earn Commissions</p>
 					</div>
-					<div>
-						<label className="block text-sm font-medium mb-1">
-							Industry *
-						</label>
-						<select
-							name="industry"
-							value={form.industry}
-							onChange={handleChange}
-							required
-							className="w-full border rounded px-3 py-2 text-sm bg-white"
-						>
-							<option value="">Select Industry</option>
-							<option value="retail">Retail</option>
-							<option value="wholesale">Wholesale</option>
-							<option value="food">Food & Beverage</option>
-							<option value="other">Other</option>
-						</select>
+					<div className={`p-3 rounded-lg text-center ${isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"}`}>
+						<Users className={`w-5 h-5 mx-auto mb-1 ${isDark ? "text-purple-400" : "text-purple-600"}`} />
+						<p className={`text-xs font-medium ${isDark ? "text-white" : "text-gray-900"}`}>Build Network</p>
 					</div>
-					<div>
-						<label className="block text-sm font-medium mb-1">
-							Contact Person *
-						</label>
-						<input
-							name="contact"
-							value={form.contact}
-							onChange={handleChange}
-							required
-							className="w-full border rounded px-3 py-2 text-sm"
-							placeholder="John Doe"
-						/>
-					</div>
-					<div>
-						<label className="block text-sm font-medium mb-1">
-							Email Address *
-						</label>
-						<input
-							name="email"
-							type="email"
-							value={form.email}
-							onChange={handleChange}
-							required
-							className="w-full border rounded px-3 py-2 text-sm"
-							placeholder="john@company.com"
-						/>
-					</div>
-					<div>
-						<label className="block text-sm font-medium mb-1">
-							Phone Number *
-						</label>
-						<input
-							name="phone"
-							value={form.phone}
-							onChange={handleChange}
-							required
-							className="w-full border rounded px-3 py-2 text-sm"
-							placeholder="+1 (555) 123-4567"
-						/>
-					</div>
-					<div>
-						<label className="block text-sm font-medium mb-1">
-							Expected Monthly Volume
-						</label>
-						<select
-							name="volume"
-							value={form.volume}
-							onChange={handleChange}
-							className="w-full border rounded px-3 py-2 text-sm bg-white"
-						>
-							<option value="">Select Volume</option>
-							<option value="100-500">100-500</option>
-							<option value="500-1000">500-1000</option>
-							<option value="1000-5000">1000-5000</option>
-							<option value=">5000">5000+</option>
-						</select>
+					<div className={`p-3 rounded-lg text-center ${isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"}`}>
+						<Gift className={`w-5 h-5 mx-auto mb-1 ${isDark ? "text-green-400" : "text-green-600"}`} />
+						<p className={`text-xs font-medium ${isDark ? "text-white" : "text-gray-900"}`}>Unlimited Growth</p>
 					</div>
 				</div>
-				<div>
-					<label className="block text-sm font-medium mb-1">
-						Business Address *
-					</label>
-					<textarea
-						name="address"
-						value={form.address}
-						onChange={handleChange}
-						required
-						className="w-full border rounded px-3 py-2 text-sm min-h-[48px]"
-						placeholder="Street address, City, State, ZIP"
-					/>
-				</div>
-				<div className="flex flex-col gap-2">
-					<label className="inline-flex items-center gap-2 text-sm">
-						<input
-							type="checkbox"
-							name="agree"
-							checked={form.agree}
-							onChange={handleChange}
-							required
-							className="accent-blue-600"
-						/>
-						I agree to the{" "}
-						<a href="#" className="text-blue-600 underline">
-							Terms of Service
-						</a>{" "}
-						and{" "}
-						<a href="#" className="text-blue-600 underline">
-							Privacy Policy
-						</a>
-					</label>
-					<label className="inline-flex items-center gap-2 text-sm">
-						<input
-							type="checkbox"
-							name="marketing"
-							checked={form.marketing}
-							onChange={handleChange}
-							className="accent-blue-600"
-						/>
-						I would like to receive marketing communications and
-						updates
-					</label>
-				</div>
-				<button
-					type="submit"
-					className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded py-2 mt-2 transition"
-				>
-					Join Partner Network
-				</button>
-			</form>
+
+				{/* Registration Form */}
+				<Card className={`${isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"} backdrop-blur-xl rounded-xl`}>
+					<CardContent className="p-6">
+						<div className="text-center mb-6">
+							<h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-gray-900"}`}>Create Partner Account</h2>
+							<p className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}>Start earning commissions today</p>
+						</div>
+
+						<form onSubmit={handleSubmit} className="space-y-4">
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div>
+									<label className={`text-xs font-medium mb-1 block ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+										Company Name
+									</label>
+									<div className="relative">
+										<Building2 className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDark ? "text-gray-400" : "text-gray-500"}`} />
+										<input
+											name="company_name"
+											value={form.company_name}
+											onChange={handleChange}
+											required
+											className={`w-full border rounded-lg px-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+											placeholder="Your Company"
+										/>
+									</div>
+								</div>
+								<div>
+									<label className={`text-xs font-medium mb-1 block ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+										Industry
+									</label>
+									<div className="relative">
+										<Briefcase className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDark ? "text-gray-400" : "text-gray-500"}`} />
+										<select
+											name="industry"
+											value={form.industry}
+											onChange={handleChange}
+											required
+											className={`w-full border rounded-lg px-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none ${isDark ? "bg-slate-900 border-white/10 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+										>
+											<option value="">Select</option>
+											<option value="retail">Retail</option>
+											<option value="wholesale">Wholesale</option>
+											<option value="fmcg">FMCG</option>
+											<option value="other">Other</option>
+										</select>
+									</div>
+								</div>
+							</div>
+
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div>
+									<label className={`text-xs font-medium mb-1 block ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+										Contact Person
+									</label>
+									<div className="relative">
+										<User className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDark ? "text-gray-400" : "text-gray-500"}`} />
+										<input
+											name="contact_person"
+											value={form.contact_person}
+											onChange={handleChange}
+											required
+											className={`w-full border rounded-lg px-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+											placeholder="John Doe"
+										/>
+									</div>
+								</div>
+								<div>
+									<label className={`text-xs font-medium mb-1 block ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+										Email
+									</label>
+									<div className="relative">
+										<Mail className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDark ? "text-gray-400" : "text-gray-500"}`} />
+										<input
+											name="email"
+											type="email"
+											value={form.email}
+											onChange={handleChange}
+											required
+											className={`w-full border rounded-lg px-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+											placeholder="email@example.com"
+										/>
+									</div>
+								</div>
+							</div>
+
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div>
+									<label className={`text-xs font-medium mb-1 block ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+										Phone
+									</label>
+									<div className="relative">
+										<Phone className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDark ? "text-gray-400" : "text-gray-500"}`} />
+										<input
+											name="phone"
+											value={form.phone}
+											onChange={handleChange}
+											required
+											className={`w-full border rounded-lg px-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+											placeholder="+62 812 3456 7890"
+										/>
+									</div>
+								</div>
+								<div>
+									<label className={`text-xs font-medium mb-1 block ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+										Monthly Volume
+									</label>
+									<div className="relative">
+										<TrendingUp className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDark ? "text-gray-400" : "text-gray-500"}`} />
+										<select
+											name="monthly_volume"
+											value={form.monthly_volume}
+											onChange={handleChange}
+											className={`w-full border rounded-lg px-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none ${isDark ? "bg-slate-900 border-white/10 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+										>
+											<option value="">Select</option>
+											<option value="100-500">100-500 units</option>
+											<option value="500-1000">500-1000 units</option>
+											<option value="1000-5000">1000-5000 units</option>
+											<option value="5000+">5000+ units</option>
+										</select>
+									</div>
+								</div>
+							</div>
+
+							<div>
+								<label className={`text-xs font-medium mb-1 block ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+									Address
+								</label>
+								<div className="relative">
+									<MapPin className={`absolute left-3 top-3 w-4 h-4 ${isDark ? "text-gray-400" : "text-gray-500"}`} />
+									<textarea
+										name="address"
+										value={form.address}
+										onChange={handleChange}
+										required
+										className={`w-full border rounded-lg px-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all min-h-[60px] ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+										placeholder="Street address, City, State, ZIP"
+									/>
+								</div>
+							</div>
+
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div>
+									<label className={`text-xs font-medium mb-1 block ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+										Password
+									</label>
+									<div className="relative">
+										<Lock className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDark ? "text-gray-400" : "text-gray-500"}`} />
+										<input
+											name="password"
+											type="password"
+											value={form.password}
+											onChange={handleChange}
+											required
+											className={`w-full border rounded-lg px-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+											placeholder="••••••••"
+										/>
+									</div>
+								</div>
+								<div>
+									<label className={`text-xs font-medium mb-1 block ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+										Confirm Password
+									</label>
+									<div className="relative">
+										<Lock className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDark ? "text-gray-400" : "text-gray-500"}`} />
+										<input
+											name="confirmPassword"
+											type="password"
+											value={form.confirmPassword}
+											onChange={handleChange}
+											required
+											className={`w-full border rounded-lg px-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-gray-300 text-gray-900"}`}
+											placeholder="••••••••"
+										/>
+									</div>
+								</div>
+							</div>
+
+							<div className="flex flex-col gap-2">
+								<label className="inline-flex items-start gap-2 text-xs">
+									<input
+										type="checkbox"
+										name="agree"
+										checked={form.agree}
+										onChange={handleChange}
+										required
+										className={`mt-0.5 accent-blue-600 ${isDark ? "bg-white/10 border-white/20" : "bg-gray-200 border-gray-300"}`}
+									/>
+									<span className={isDark ? "text-gray-300" : "text-gray-600"}>
+										I agree to the{" "}
+										<a href="#" className="text-blue-400 hover:text-blue-300">
+											Terms of Service
+										</a>{" "}
+										and{" "}
+										<a href="#" className="text-blue-400 hover:text-blue-300">
+											Privacy Policy
+										</a>
+									</span>
+								</label>
+								<label className="inline-flex items-start gap-2 text-xs">
+									<input
+										type="checkbox"
+										name="marketing_consent"
+										checked={form.marketing_consent}
+										onChange={handleChange}
+										className={`mt-0.5 accent-blue-600 ${isDark ? "bg-white/10 border-white/20" : "bg-gray-200 border-gray-300"}`}
+									/>
+									<span className={isDark ? "text-gray-300" : "text-gray-600"}>
+										I would like to receive marketing communications
+									</span>
+								</label>
+							</div>
+
+							{error && (
+								<div className="bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-2 rounded-lg text-xs">
+									{error}
+								</div>
+							)}
+
+							<Button
+								type="submit"
+								disabled={loading}
+								className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white py-2.5 rounded-lg text-sm transition-all"
+							>
+								{loading ? "Creating Account..." : "Create Account"}
+								<ArrowRight className="w-4 h-4 ml-2" />
+							</Button>
+
+							<div className={`text-center text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+								Or continue with
+							</div>
+
+							<Button
+								type="button"
+								onClick={handleGoogleSignIn}
+								disabled={loading}
+								variant="outline"
+								className={`w-full gap-2 text-sm ${isDark ? "border-white/20 text-gray-300 hover:bg-white/10" : "border-gray-300 text-gray-700 hover:bg-gray-100"}`}
+							>
+								<FcGoogle className="w-5 h-5" />
+								Sign up with Google
+							</Button>
+
+							<div className={`text-center text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+								Already have an account?{" "}
+								<a href="/auth/login" className="text-blue-400 hover:text-blue-300">
+									Sign In
+								</a>
+							</div>
+						</form>
+					</CardContent>
+				</Card>
+			</div>
 		</main>
 	);
 }
