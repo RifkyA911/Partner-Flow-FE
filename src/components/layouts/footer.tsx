@@ -5,6 +5,7 @@ import { Github, Zap, Heart } from "lucide-react";
 
 export function Footer() {
 	const [isDark, setIsDark] = useState(true);
+	const currentYear = new Date().getFullYear();
 
 	useEffect(() => {
 		const checkTheme = () => setIsDark(document.documentElement.classList.contains("dark"));
@@ -53,7 +54,7 @@ export function Footer() {
 
 					{/* Portfolio Note */}
 					<div className={`text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}>
-						Portfolio Showcase Only
+						© {currentYear} Portfolio Showcase Only
 					</div>
 				</div>
 			</div>

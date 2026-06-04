@@ -20,14 +20,25 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 		const savedTheme = localStorage.getItem("theme") as Theme | null;
 		if (savedTheme) {
 			setTheme(savedTheme);
+		} else {
+			// Apply initial theme immediately
+			document.documentElement.classList.add("dark");
+			document.body.classList.add("bg-slate-950", "text-white");
 		}
 	}, []);
 
 	useEffect(() => {
 		if (mounted) {
 			document.documentElement.classList.toggle("dark", theme === "dark");
-			document.body.className = document.body.className.replace(/bg-\w+-\d+/g, theme === "dark" ? "bg-slate-950" : "bg-gray-50");
-			document.body.className = document.body.className.replace(/text-\w+-\d+/g, theme === "dark" ? "text-white" : "text-gray-900");
+			// Apply theme classes to body
+			const body = document.body;
+			if (theme === "dark") {
+				body.classList.remove("bg-gray-50", "text-gray-900");
+				body.classList.add("bg-slate-950", "text-white");
+			} else {
+				body.classList.remove("bg-slate-950", "text-white");
+				body.classList.add("bg-gray-50", "text-gray-900");
+			}
 			localStorage.setItem("theme", theme);
 		}
 	}, [theme, mounted]);

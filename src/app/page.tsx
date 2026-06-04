@@ -35,7 +35,7 @@ export default function Home() {
 			</div>
 
 			{/* Hero Section */}
-			<section className="relative pt-16 pb-12 px-4">
+			<section className="relative pt-16 pb-12 px-4 my-16">
 				<div className="relative max-w-6xl mx-auto">
 					<div className="text-center max-w-4xl mx-auto">
 						{/* Badge */}
@@ -72,7 +72,7 @@ export default function Home() {
 									<ArrowRight className="w-4 h-4 ml-2" />
 								</Button>
 							</Link>
-							<Link href="/auth/login">
+							<Link href="/auth/login?showDemo=true">
 								<Button
 									size="lg"
 									variant="outline"
@@ -103,8 +103,104 @@ export default function Home() {
 				</div>
 			</section>
 
+			{/* Why/About/Insight Section - 5W+1H */}
+			<section className="py-12 my-16 px-4">
+				<div className="max-w-6xl mx-auto">
+					<div className={`backdrop-blur-lg border rounded-2xl p-6 md:p-8 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"}`}>
+						<div className="text-center mb-8">
+							<h2 className={`text-2xl md:text-3xl lg:text-4xl font-bold mb-3 ${isDark ? "text-white" : "text-gray-900"}`}>
+								Why Partner Flow Exists
+							</h2>
+							<p className={`text-base max-w-2xl mx-auto ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+								Every great solution starts with understanding the problem
+							</p>
+						</div>
+
+						<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+							{/* What */}
+							<div className={`p-4 rounded-xl ${isDark ? "bg-white/5" : "bg-gray-50"}`}>
+								<div className="flex items-center gap-2 mb-2">
+									<div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+										<span className="text-white font-bold text-sm">W</span>
+									</div>
+									<h3 className={`font-bold ${isDark ? "text-white" : "text-gray-900"}`}>What</h3>
+								</div>
+								<p className={`text-sm leading-relaxed ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+									A modern referral platform that transforms your network into a sustainable income stream through viral growth mechanics.
+								</p>
+							</div>
+
+							{/* Why */}
+							<div className={`p-4 rounded-xl ${isDark ? "bg-white/5" : "bg-gray-50"}`}>
+								<div className="flex items-center gap-2 mb-2">
+									<div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+										<span className="text-white font-bold text-sm">W</span>
+									</div>
+									<h3 className={`font-bold ${isDark ? "text-white" : "text-gray-900"}`}>Why</h3>
+								</div>
+								<p className={`text-sm leading-relaxed ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+									Traditional referral programs are limited. We believe your network should work for you, not just once, but continuously through multi-level growth.
+								</p>
+							</div>
+
+							{/* Who */}
+							<div className={`p-4 rounded-xl ${isDark ? "bg-white/5" : "bg-gray-50"}`}>
+								<div className="flex items-center gap-2 mb-2">
+									<div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+										<span className="text-white font-bold text-sm">W</span>
+									</div>
+									<h3 className={`font-bold ${isDark ? "text-white" : "text-gray-900"}`}>Who</h3>
+								</div>
+								<p className={`text-sm leading-relaxed ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+									For entrepreneurs, influencers, and anyone with a network who wants to monetize their connections without complex technical requirements.
+								</p>
+							</div>
+
+							{/* When */}
+							<div className={`p-4 rounded-xl ${isDark ? "bg-white/5" : "bg-gray-50"}`}>
+								<div className="flex items-center gap-2 mb-2">
+									<div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-lg flex items-center justify-center">
+										<span className="text-white font-bold text-sm">W</span>
+									</div>
+									<h3 className={`font-bold ${isDark ? "text-white" : "text-gray-900"}`}>When</h3>
+								</div>
+								<p className={`text-sm leading-relaxed ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+									Right now. The gig economy is booming, and passive income opportunities are more valuable than ever in today's digital landscape.
+								</p>
+							</div>
+
+							{/* Where */}
+							<div className={`p-4 rounded-xl ${isDark ? "bg-white/5" : "bg-gray-50"}`}>
+								<div className="flex items-center gap-2 mb-2">
+									<div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-rose-500 rounded-lg flex items-center justify-center">
+										<span className="text-white font-bold text-sm">W</span>
+									</div>
+									<h3 className={`font-bold ${isDark ? "text-white" : "text-gray-900"}`}>Where</h3>
+								</div>
+								<p className={`text-sm leading-relaxed ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+									Anywhere with internet access. Our mobile-first design lets you manage your network from any device, anywhere in the world.
+								</p>
+							</div>
+
+							{/* How */}
+							<div className={`p-4 rounded-xl ${isDark ? "bg-white/5" : "bg-gray-50"}`}>
+								<div className="flex items-center gap-2 mb-2">
+									<div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
+										<span className="text-white font-bold text-sm">H</span>
+									</div>
+									<h3 className={`font-bold ${isDark ? "text-white" : "text-gray-900"}`}>How</h3>
+								</div>
+								<p className={`text-sm leading-relaxed ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+									Through our unique viral growth engine where your referrals become partners, creating exponential network expansion and commission opportunities.
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
 			{/* Stats Section - Glass Cards */}
-			<section className="py-10 px-4">
+			<section className="py-10 my-16 px-4">
 				<div className="max-w-6xl mx-auto">
 					<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 						{[
@@ -142,8 +238,8 @@ export default function Home() {
 					</div>
 
 					{/* Bento Grid */}
-					<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-						{/* Large Feature Card */}
+					<div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+						{/* Large Feature Card - Spans 2 columns on tablet, 2 on desktop */}
 						<div className={`md:col-span-2 lg:col-span-2 backdrop-blur-lg border rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02] ${isDark ? "bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-white/10 hover:border-white/20" : "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50"}`}>
 							<div className="flex items-start gap-4">
 								<div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -158,7 +254,7 @@ export default function Home() {
 							</div>
 						</div>
 
-						{/* Tall Feature Card */}
+						{/* Tall Feature Card - Spans 1 column */}
 						<div className={`backdrop-blur-lg border rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02] ${isDark ? "bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-white/10 hover:border-white/20" : "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50"}`}>
 							<div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mb-3">
 								<Gift className="w-5 h-5 text-white" />
@@ -169,7 +265,7 @@ export default function Home() {
 							</p>
 						</div>
 
-						{/* Feature Card */}
+						{/* Feature Card - Spans 1 column */}
 						<div className={`backdrop-blur-lg border rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02] ${isDark ? "bg-gradient-to-br from-orange-500/10 to-yellow-500/10 border-white/10 hover:border-white/20" : "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50"}`}>
 							<div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-xl flex items-center justify-center mb-3">
 								<BarChart3 className="w-5 h-5 text-white" />
@@ -180,7 +276,7 @@ export default function Home() {
 							</p>
 						</div>
 
-						{/* Feature Card */}
+						{/* Feature Card - Spans 1 column */}
 						<div className={`backdrop-blur-lg border rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02] ${isDark ? "bg-gradient-to-br from-pink-500/10 to-rose-500/10 border-white/10 hover:border-white/20" : "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50"}`}>
 							<div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl flex items-center justify-center mb-3">
 								<Smartphone className="w-5 h-5 text-white" />
@@ -191,7 +287,7 @@ export default function Home() {
 							</p>
 						</div>
 
-						{/* Feature Card */}
+						{/* Feature Card - Spans 1 column */}
 						<div className={`backdrop-blur-lg border rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02] ${isDark ? "bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border-white/10 hover:border-white/20" : "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50"}`}>
 							<div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center mb-3">
 								<Shield className="w-5 h-5 text-white" />
@@ -202,7 +298,7 @@ export default function Home() {
 							</p>
 						</div>
 
-						{/* Feature Card */}
+						{/* Feature Card - Spans 1 column */}
 						<div className={`backdrop-blur-lg border rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02] ${isDark ? "bg-gradient-to-br from-violet-500/10 to-purple-500/10 border-white/10 hover:border-white/20" : "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50"}`}>
 							<div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-500 rounded-xl flex items-center justify-center mb-3">
 								<Network className="w-5 h-5 text-white" />
@@ -292,7 +388,7 @@ export default function Home() {
 			</section>
 
 			{/* CTA Section - Glass Card */}
-			<section className="py-14 px-4">
+			<section className="py-14 my-16 px-4">
 				<div className="max-w-5xl mx-auto">
 					<div className={`backdrop-blur-xl border rounded-2xl p-8 md:p-10 text-center relative overflow-hidden ${isDark ? "bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-pink-500/20 border-white/20" : "bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 border-gray-200"}`}>
 						{/* Animated background elements */}
@@ -336,7 +432,7 @@ export default function Home() {
 			</section>
 
 			{/* Testimonials Section - Glass Cards */}
-			<section className="py-14 px-4">
+			<section className="py-14 my-16 px-4">
 				<div className="max-w-6xl mx-auto">
 					<div className="text-center mb-10">
 						<h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3">
@@ -377,8 +473,8 @@ export default function Home() {
 				</div>
 			</section>
 
-			{/* Footer CTA */}
-			<section className="py-14 px-4">
+			{/* Join CTA */}
+			<section className="py-14 my-16 px-4">
 				<div className="max-w-4xl mx-auto text-center">
 					<h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
 						<span className={`bg-gradient-to-r bg-clip-text text-transparent ${isDark ? "from-white to-gray-400" : "from-gray-900 to-gray-600"}`}>
@@ -397,6 +493,112 @@ export default function Home() {
 							<Heart className="w-4 h-4 ml-2" />
 						</Button>
 					</Link>
+				</div>
+			</section>
+
+			{/* Rating Section */}
+			<section className="py-14 my-16 px-4">
+				<div className="max-w-4xl mx-auto">
+					<div className={`backdrop-blur-xl border rounded-2xl p-6 md:p-8 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"}`}>
+						<div className="text-center mb-8">
+							<h2 className={`text-2xl md:text-3xl lg:text-4xl font-bold mb-3 ${isDark ? "text-white" : "text-gray-900"}`}>
+								Rate Your Experience
+							</h2>
+							<p className={`text-base max-w-xl mx-auto ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+								Help us improve by sharing your feedback
+							</p>
+						</div>
+
+						<form className="space-y-6">
+							{/* Star Rating */}
+							<div>
+								<label className={`block text-sm font-medium mb-3 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+									Overall Rating
+								</label>
+								<div className="flex gap-2 justify-center" role="radiogroup" aria-label="Rating">
+									{[1, 2, 3, 4, 5].map((rating) => (
+										<button
+											key={rating}
+											type="button"
+											className="w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 bg-gray-200 hover:bg-yellow-400 text-gray-400 hover:text-white"
+											aria-label={`${rating} star${rating === 1 ? '' : 's'}`}
+											aria-pressed="false"
+										>
+											<Star className="w-6 h-6 fill-current" />
+										</button>
+									))}
+								</div>
+							</div>
+
+							{/* Name */}
+							<div>
+								<label htmlFor="rating-name" className={`block text-sm font-medium mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+									Name
+								</label>
+								<input
+									id="rating-name"
+									type="text"
+									className={`w-full border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${isDark ? "bg-white/5 border-white/10 text-white placeholder-gray-500" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"}`}
+									placeholder="Your name"
+									required
+								/>
+							</div>
+
+							{/* Email */}
+							<div>
+								<label htmlFor="rating-email" className={`block text-sm font-medium mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+									Email
+								</label>
+								<input
+									id="rating-email"
+									type="email"
+									className={`w-full border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${isDark ? "bg-white/5 border-white/10 text-white placeholder-gray-500" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"}`}
+									placeholder="your@email.com"
+									required
+								/>
+							</div>
+
+							{/* Feedback */}
+							<div>
+								<label htmlFor="rating-feedback" className={`block text-sm font-medium mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+									Your Feedback
+								</label>
+								<textarea
+									id="rating-feedback"
+									rows={4}
+									className={`w-full border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all min-h-[100px] resize-none ${isDark ? "bg-white/5 border-white/10 text-white placeholder-gray-500" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"}`}
+									placeholder="Tell us about your experience..."
+									required
+								/>
+							</div>
+
+							{/* Category Selection */}
+							<div>
+								<label className={`block text-sm font-medium mb-3 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+									What would you like to rate?
+								</label>
+								<div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+									{['Ease of Use', 'Features', 'Support', 'Performance'].map((category) => (
+										<button
+											key={category}
+											type="button"
+											className={`px-4 py-2 rounded-lg text-sm font-medium transition-all border focus:outline-none focus:ring-2 focus:ring-blue-500 ${isDark ? "border-white/20 text-gray-300 hover:bg-white/10" : "border-gray-300 text-gray-700 hover:bg-gray-100"}`}
+										>
+											{category}
+										</button>
+									))}
+								</div>
+							</div>
+
+							{/* Submit Button */}
+							<Button
+								type="submit"
+								className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white py-3 rounded-lg text-sm font-medium transition-all"
+							>
+								Submit Rating
+							</Button>
+						</form>
+					</div>
 				</div>
 			</section>
 		</div>
