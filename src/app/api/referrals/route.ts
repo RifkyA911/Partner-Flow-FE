@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
           id: newReferral.id,
           referral_code: newReferral.referral_code,
           status: newReferral.status,
-          share_link: `https://partner-referral-hub.vercel.app/register?ref=${referral_code}`,
+          share_link: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/register?ref=${referral_code}`,
         },
       },
       { status: 201 }

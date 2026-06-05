@@ -37,7 +37,7 @@ const steps = [
 export default function OnboardingPage() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
-	const { data: session, update } = useSession();
+	const { data: session, status, update } = useSession();
 	const [isDark, setIsDark] = useState(true);
 	const [currentStep, setCurrentStep] = useState(1);
 	const [loading, setLoading] = useState(false);
@@ -128,8 +128,11 @@ export default function OnboardingPage() {
 			const data = await res.json();
 
 			if (data.success) {
-				// Update session to reflect completed onboarding
-				await update();
+				await update({
+					partner_code: data.data.user?.partner_code ?? data.data.partner_code,
+					id: data.data.user?.id ?? data.data.id,
+					role: data.data.user?.role ?? "partner",
+				});
 				router.push("/dashboard");
 			} else {
 				setError(data.error || "Onboarding failed");

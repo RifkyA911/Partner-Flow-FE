@@ -118,8 +118,8 @@ Partner Flow is a comprehensive referral partner platform designed for Aice in t
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/partner-flow/frontend.git
-cd frontend
+git clone https://github.com/partner-flow/partner-flow-fe.git
+cd partner-flow-fe
 ```
 
 2. **Install dependencies**
@@ -191,16 +191,7 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 ## 📁 Project Structure
 
 ```
-frontend/
-├── .agents/                 # Agent documentation
-│   ├── api/                # API documentation
-│   ├── architecture/       # System architecture
-│   ├── database/           # Database schemas
-│   ├── design/             # Design specifications
-│   ├── planning/           # Project planning
-│   │   ├── RBAC.md         # Role-based access control
-│   │   └── ROADMAP.md      # Project roadmap
-│   └── setup/              # Setup instructions
+partner-flow-fe/
 ├── .env.example            # Environment variables template
 ├── public/                 # Static assets
 ├── src/
@@ -239,6 +230,8 @@ frontend/
 │       └── next-auth.d.ts # NextAuth types
 ├── package.json           # Dependencies
 └── README.md             # This file
+
+Note: The .agents folder is located at the parent directory (../.agents) and contains project documentation.
 ```
 
 ---

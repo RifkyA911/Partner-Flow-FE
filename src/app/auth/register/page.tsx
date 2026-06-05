@@ -85,7 +85,8 @@ export default function RegisterPage() {
 					monthly_volume: form.monthly_volume,
 					address: form.address,
 					password: form.password,
-					referred_by: referralCode || undefined,
+					referral_code: referralCode || undefined,
+					agree_terms: form.agree,
 					marketing_consent: form.marketing_consent,
 				}),
 			});

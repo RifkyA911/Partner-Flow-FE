@@ -6,12 +6,14 @@ declare module "next-auth" {
       id: string;
       role: string;
       partner_code?: string;
+      needsOnboarding?: boolean;
     } & DefaultSession["user"];
   }
 
   interface User {
     role: string;
     partner_code?: string;
+    needsOnboarding?: boolean;
   }
 }
 
@@ -20,5 +22,6 @@ declare module "next-auth/jwt" {
     role: string;
     partner_code?: string;
     id?: string;
+    needsOnboarding?: boolean;
   }
 }

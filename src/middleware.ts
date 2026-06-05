@@ -7,7 +7,7 @@ export default auth((req) => {
   const userRole = req.auth?.user?.role;
 
   // Public routes
-  const publicRoutes = ["/", "/auth/login", "/auth/register"];
+  const publicRoutes = ["/", "/auth/login", "/auth/register", "/auth/onboarding"];
   const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
 
   // If user is not logged in and trying to access protected route

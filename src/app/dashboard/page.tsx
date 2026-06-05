@@ -84,7 +84,10 @@ export default function Dashboard() {
 
 		if (session?.user) {
 			// Check if user needs onboarding (no partner_code)
-			if (!session.user.partner_code && session.user.role === "partner") {
+			const needsOnboarding =
+				(session.user as { needsOnboarding?: boolean }).needsOnboarding ||
+				(!session.user.partner_code && session.user.role === "partner");
+			if (needsOnboarding) {
 				router.push("/auth/onboarding");
 				return;
 			}
@@ -93,7 +96,8 @@ export default function Dashboard() {
 
 			if (userRole === "partner") {
 				// Partner-specific logic
-				const link = `https://partner-referral-hub.vercel.app/register?ref=${session.user.partner_code}`;
+				const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+				const link = `${appUrl}/auth/register?ref=${session.user.partner_code}`;
 				setReferralLink(link);
 				fetchPartnerReferrals(session.user.id);
 			} else if (session?.user?.role === "admin") {

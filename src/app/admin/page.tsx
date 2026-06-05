@@ -39,6 +39,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { baseUrl } from "@/config";
 
 export default function AdminDashboard() {
 	const router = useRouter();
@@ -117,7 +118,7 @@ export default function AdminDashboard() {
 
 	const fetchStats = async () => {
 		try {
-			const res = await fetch("/api/admin/stats");
+			const res = await fetch(`${baseUrl}/api/admin/stats`);
 			const data = await res.json();
 			if (data.success) {
 				setStats(data.data);
@@ -129,7 +130,7 @@ export default function AdminDashboard() {
 
 	const fetchPartners = async () => {
 		try {
-			const res = await fetch("/api/partners");
+			const res = await fetch(`${baseUrl}/api/partners`);
 			const data = await res.json();
 			if (data.success) {
 				setPartners(data.data.partners);
@@ -141,7 +142,7 @@ export default function AdminDashboard() {
 
 	const fetchReferrals = async () => {
 		try {
-			const res = await fetch("/api/referrals");
+			const res = await fetch(`${baseUrl}/api/referrals`);
 			const data = await res.json();
 			if (data.success) {
 				setReferrals(data.data.referrals);

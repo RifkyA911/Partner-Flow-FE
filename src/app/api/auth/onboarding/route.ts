@@ -40,9 +40,24 @@ export async function POST(request: NextRequest) {
 		const data = await res.json();
 
 		if (data.success) {
-			return NextResponse.json({ success: true, data: data.data });
+			return NextResponse.json({
+				success: true,
+				data: {
+					...data.data,
+					user: {
+						id: data.data.id,
+						partner_code: data.data.partner_code,
+						role: data.data.role ?? "partner",
+						name: data.data.company_name,
+					},
+				},
+			});
 		} else {
-			return NextResponse.json({ success: false, error: data.error || "Onboarding failed" }, { status: 400 });
+			const errMsg =
+				typeof data.error === "string"
+					? data.error
+					: data.error?.message ?? "Onboarding failed";
+			return NextResponse.json({ success: false, error: errMsg }, { status: 400 });
 		}
 	} catch (error) {
 		console.error("Onboarding error:", error);

@@ -23,6 +23,7 @@ import {
 } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { baseUrl } from "@/config";
 
 export default function PartnersDashboard() {
 	interface Referral {
@@ -64,7 +65,8 @@ export default function PartnersDashboard() {
 
 		if (session?.user) {
 			// Set referral link
-			const link = `https://partner-referral-hub.vercel.app/register?ref=${session.user.partner_code}`;
+			const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+			const link = `${appUrl}/auth/register?ref=${session.user.partner_code}`;
 			setReferralLink(link);
 
 			// Fetch referrals
@@ -74,7 +76,7 @@ export default function PartnersDashboard() {
 
 	const fetchReferrals = async (partnerId: string) => {
 		try {
-			const res = await fetch(`/api/referrals?partner_id=${partnerId}`);
+			const res = await fetch(`${baseUrl}/api/referrals?partner_id=${partnerId}`);
 			const data = await res.json();
 			if (data.success) {
 				setReferrals(data.data.referrals);
