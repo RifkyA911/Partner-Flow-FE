@@ -11,7 +11,15 @@ export async function POST(request: NextRequest) {
 		}
 
 		const body = await request.json();
-		const { company_name, industry, contact_person, phone, monthly_volume, address } = body;
+		const {
+			company_name,
+			industry,
+			contact_person,
+			phone,
+			monthly_volume,
+			address,
+			referral_code,
+		} = body;
 
 		// Validate required fields
 		if (!company_name || !industry || !contact_person || !phone || !monthly_volume || !address) {
@@ -34,6 +42,7 @@ export async function POST(request: NextRequest) {
 				phone,
 				monthly_volume,
 				address,
+				referral_code: referral_code || undefined,
 			}),
 		});
 
