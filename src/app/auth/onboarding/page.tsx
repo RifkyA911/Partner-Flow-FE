@@ -6,6 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Zap, Building2, User, Phone, MapPin, Briefcase, ArrowRight, Check } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { Gift } from "lucide-react";
+import {
+	clearPendingReferral,
+	getPendingReferral,
+} from "@/lib/referral-storage";
 
 const steps = [
 	{
@@ -42,6 +47,8 @@ export default function OnboardingPage() {
 	const [currentStep, setCurrentStep] = useState(1);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
+	const [referralNote, setReferralNote] = useState<string | null>(null);
+	const [pendingRef, setPendingRef] = useState<string | null>(null);
 	const [form, setForm] = useState({
 		company_name: "",
 		industry: "",
@@ -68,16 +75,38 @@ export default function OnboardingPage() {
 			return;
 		}
 
+		// Check if user already has a partner_code (means they've completed onboarding)
+		if (session?.user?.partner_code) {
+			router.push("/dashboard");
+			return;
+		}
+
 		// Pre-fill contact person name from session if available
 		if (session?.user?.name) {
 			setForm((prev) => ({ ...prev, contact_person: session.user.name || "" }));
 		}
-
-		// Check if user already has a partner_code (means they've completed onboarding)
-		if (session?.user?.partner_code) {
-			router.push("/dashboard");
-		}
 	}, [session, status, router]);
+
+	// Don't render anything while checking authentication or redirecting
+	if (status === "loading" || (session?.user?.partner_code)) {
+		return null;
+	}
+
+	useEffect(() => {
+		const ref = searchParams.get("ref") || getPendingReferral();
+		if (!ref) return;
+		setPendingRef(ref);
+		fetch(`/api/referrals/validate?code=${encodeURIComponent(ref)}`)
+			.then((res) => res.json())
+			.then((data) => {
+				if (data.success && data.data?.valid) {
+					setReferralNote(
+						`Referred by ${data.data.referrer_name} — attribution only (no commission until admin validates)`,
+					);
+				}
+			})
+			.catch(() => undefined);
+	}, [searchParams]);
 
 	const handleChange = (
 		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -122,18 +151,31 @@ export default function OnboardingPage() {
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify(form),
+				body: JSON.stringify({
+					...form,
+					referral_code: pendingRef || getPendingReferral() || undefined,
+				}),
 			});
 
 			const data = await res.json();
 
 			if (data.success) {
+				const partnerCode =
+					data.data.user?.partner_code ?? data.data.partner_code;
+				const partnerId = data.data.user?.id ?? data.data.id;
+
 				await update({
-					partner_code: data.data.user?.partner_code ?? data.data.partner_code,
-					id: data.data.user?.id ?? data.data.id,
-					role: data.data.user?.role ?? "partner",
+					partner_code: partnerCode,
+					id: partnerId,
+					role: "partner",
+					needsOnboarding: false,
 				});
-				router.push("/dashboard");
+
+				clearPendingReferral();
+
+				// Hard navigation so JWT session is fully re-read after update
+				window.location.href = "/dashboard";
+				return;
 			} else {
 				setError(data.error || "Onboarding failed");
 			}
@@ -295,6 +337,13 @@ export default function OnboardingPage() {
 					<h1 className={`text-xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>Partner Flow</h1>
 				</div>
 
+				{referralNote && (
+					<div className="mb-6 p-4 rounded-xl border border-green-500/30 bg-green-500/10 flex items-start gap-3">
+						<Gift className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
+						<p className="text-sm text-green-200">{referralNote}</p>
+					</div>
+				)}
+
 				{/* Progress Steps */}
 				<div className="flex items-center justify-center mb-8">
 					{steps.map((step, index) => {
@@ -307,12 +356,12 @@ export default function OnboardingPage() {
 								<div className="flex flex-col items-center">
 									<div
 										className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isCompleted
-												? "bg-green-500 text-white"
-												: isCurrent
-													? "bg-blue-500 text-white"
-													: isDark
-														? "bg-white/10 text-gray-400"
-														: "bg-gray-200 text-gray-600"
+											? "bg-green-500 text-white"
+											: isCurrent
+												? "bg-blue-500 text-white"
+												: isDark
+													? "bg-white/10 text-gray-400"
+													: "bg-gray-200 text-gray-600"
 											}`}
 									>
 										{isCompleted ? <Check className="w-5 h-5" /> : <StepIcon className="w-5 h-5" />}

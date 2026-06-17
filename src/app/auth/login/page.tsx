@@ -54,10 +54,18 @@ export default function LoginPage() {
     return () => observer.disconnect();
   }, []);
 
+  const { data: session, status } = useSession();
+
   useEffect(() => {
     const showDemoParam = searchParams.get("showDemo");
     setShowDemo(showDemoParam === "true");
   }, [searchParams]);
+
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      router.push("/dashboard");
+    }
+  }, [status, session, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({
@@ -83,8 +91,8 @@ export default function LoginPage() {
       } else {
         // Refresh session to ensure role is set
         await update();
-        // Force page reload to ensure session is properly set
-        window.location.href = "/dashboard";
+        // Smooth redirect to dashboard
+        router.push("/dashboard");
       }
     } catch (err) {
       setError("An error occurred. Please try again.");
@@ -119,12 +127,12 @@ export default function LoginPage() {
   };
 
   return (
-    <main className={`min-h-screen mt-4 mb-16 flex items-center justify-center px-4 ${isDark ? "bg-slate-950 text-white" : "bg-gray-50 text-gray-900"}`}>
+    <main className={`min-h-screen mt-4 mb-16 flex items-center justify-center px-4 animate-fade-in ${isDark ? "bg-slate-950 text-white" : "bg-gray-50 text-gray-900"}`}>
       <div className="w-full max-w-md">
         {/* Back button */}
         <div className="mb-4">
           <Link href="/">
-            <Button variant="ghost" size="sm" className={`${isDark ? "text-gray-300 hover:text-white hover:bg-white/10" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"}`}>
+            <Button variant="ghost" size="sm" className={`transition-all duration-300 ${isDark ? "text-gray-300 hover:text-white hover:bg-white/10 hover:scale-105" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100 hover:scale-105"}`}>
               <ArrowRight className="w-4 h-4 rotate-180 mr-2" />
               Back
             </Button>
@@ -133,14 +141,14 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center transition-transform duration-300 hover:scale-110">
             <Zap className="w-5 h-5 text-white" />
           </div>
           <h1 className={`text-xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>Partner Flow</h1>
         </div>
 
         {/* Login Card */}
-        <Card className={`${isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"} backdrop-blur-xl rounded-xl`}>
+        <Card className={`${isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"} backdrop-blur-xl rounded-xl transition-all duration-300 hover:shadow-lg`}>
           <CardContent className="p-6">
             <div className="text-center mb-6">
               <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-gray-900"}`}>Sign In</h2>

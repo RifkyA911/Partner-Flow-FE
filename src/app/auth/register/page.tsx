@@ -2,15 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Zap, Mail, Lock, Building2, User, Phone, MapPin, Briefcase, ArrowRight, Gift, TrendingUp, Users } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
+import { savePendingReferral } from "@/lib/referral-storage";
 
 export default function RegisterPage() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
+	const { data: session, status } = useSession();
 	const [isDark, setIsDark] = useState(true);
 	const [form, setForm] = useState({
 		company_name: "",
@@ -27,7 +29,16 @@ export default function RegisterPage() {
 	});
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
+	const [validatingRef, setValidatingRef] = useState(false);
 	const referralCode = searchParams.get("ref");
+	const [activeReferralCode, setActiveReferralCode] = useState<string | null>(
+		referralCode,
+	);
+	const [referralValidation, setReferralValidation] = useState<{
+		valid: boolean;
+		message?: string;
+		referrer_name?: string;
+	} | null>(null);
 
 	useEffect(() => {
 		const checkTheme = () => setIsDark(document.documentElement.classList.contains("dark"));
@@ -38,6 +49,52 @@ export default function RegisterPage() {
 
 		return () => observer.disconnect();
 	}, []);
+
+	useEffect(() => {
+		if (status === "authenticated" && session?.user) {
+			router.push("/dashboard");
+		}
+	}, [status, session, router]);
+
+	useEffect(() => {
+		if (referralCode) {
+			savePendingReferral(referralCode);
+		}
+		if (!referralCode) {
+			setActiveReferralCode(null);
+			setReferralValidation(null);
+			return;
+		}
+
+		setValidatingRef(true);
+		fetch(`/api/referrals/validate?code=${encodeURIComponent(referralCode)}`)
+			.then((res) => res.json())
+			.then((data) => {
+				if (data.success && data.data) {
+					setReferralValidation(data.data);
+					if (data.data.valid) {
+						setActiveReferralCode(referralCode);
+						savePendingReferral(referralCode);
+					} else {
+						setActiveReferralCode(null);
+					}
+				} else {
+					setReferralValidation({
+						valid: false,
+						message: "Could not verify referral link",
+					});
+					setActiveReferralCode(null);
+				}
+			})
+			.catch(() => {
+				setReferralValidation({
+					valid: false,
+					message: "Could not verify referral link — you can still register",
+				});
+				setActiveReferralCode(null);
+			})
+			.finally(() => setValidatingRef(false));
+	}, [referralCode]);
 
 	const handleChange = (
 		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -64,8 +121,20 @@ export default function RegisterPage() {
 		setLoading(true);
 		setError("");
 
+		if (!form.agree) {
+			setError("You must agree to the terms and conditions");
+			setLoading(false);
+			return;
+		}
+
 		if (form.password !== form.confirmPassword) {
 			setError("Passwords do not match");
+			setLoading(false);
+			return;
+		}
+
+		if (form.password.length < 8) {
+			setError("Password must be at least 8 characters");
 			setLoading(false);
 			return;
 		}
@@ -85,7 +154,7 @@ export default function RegisterPage() {
 					monthly_volume: form.monthly_volume,
 					address: form.address,
 					password: form.password,
-					referral_code: referralCode || undefined,
+					referral_code: activeReferralCode || undefined,
 					agree_terms: form.agree,
 					marketing_consent: form.marketing_consent,
 				}),
@@ -94,9 +163,24 @@ export default function RegisterPage() {
 			const data = await res.json();
 
 			if (data.success) {
+				const signInResult = await signIn("credentials", {
+					email: form.email,
+					password: form.password,
+					redirect: false,
+				});
+
+				if (!signInResult?.error) {
+					router.push("/dashboard");
+					return;
+				}
+
 				router.push("/auth/login?registered=true");
 			} else {
-				setError(data.error || "Registration failed");
+				const errMsg =
+					typeof data.error === "string"
+						? data.error
+						: data.error?.message ?? "Registration failed";
+				setError(errMsg);
 			}
 		} catch (err) {
 			setError("An error occurred. Please try again.");
@@ -108,6 +192,11 @@ export default function RegisterPage() {
 	const handleGoogleSignIn = async () => {
 		setLoading(true);
 		try {
+			if (activeReferralCode) {
+				savePendingReferral(activeReferralCode);
+			} else if (referralCode) {
+				savePendingReferral(referralCode);
+			}
 			const result = await signIn("google", { callbackUrl: "/auth/onboarding" });
 			if ((result as any)?.error) {
 				setError("Google sign in failed");
@@ -132,18 +221,73 @@ export default function RegisterPage() {
 
 				{/* Referral Banner */}
 				{referralCode && (
-					<Card className={`${isDark ? "bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-blue-500/30" : "bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200"} backdrop-blur-xl rounded-xl mb-6`}>
+					<Card
+						className={`backdrop-blur-xl rounded-xl mb-6 ${validatingRef
+							? isDark
+								? "bg-white/5 border-white/10"
+								: "bg-gray-50 border-gray-200"
+							: referralValidation?.valid
+								? isDark
+									? "bg-gradient-to-r from-green-600/20 to-blue-600/20 border-green-500/30"
+									: "bg-gradient-to-r from-green-50 to-blue-50 border-green-200"
+								: isDark
+									? "bg-gradient-to-r from-amber-600/20 to-orange-600/20 border-amber-500/30"
+									: "bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200"
+							}`}
+					>
 						<CardContent className="p-4">
 							<div className="flex items-center gap-3">
-								<div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? "bg-blue-500/20" : "bg-blue-100"}`}>
-									<Gift className={`w-5 h-5 ${isDark ? "text-blue-400" : "text-blue-600"}`} />
+								<div
+									className={`w-10 h-10 rounded-full flex items-center justify-center ${referralValidation?.valid
+										? isDark
+											? "bg-green-500/20"
+											: "bg-green-100"
+										: isDark
+											? "bg-amber-500/20"
+											: "bg-amber-100"
+										}`}
+								>
+									<Gift
+										className={`w-5 h-5 ${referralValidation?.valid
+											? isDark
+												? "text-green-400"
+												: "text-green-600"
+											: isDark
+												? "text-amber-400"
+												: "text-amber-600"
+											}`}
+									/>
 								</div>
 								<div className="flex-1">
-									<p className={`text-sm font-medium ${isDark ? "text-white" : "text-gray-900"}`}>You've been invited!</p>
-									<p className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}>Join the referral network and start earning</p>
+									{validatingRef ? (
+										<p className={`text-sm ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+											Verifying referral link…
+										</p>
+									) : referralValidation?.valid ? (
+										<>
+											<p className={`text-sm font-medium ${isDark ? "text-white" : "text-gray-900"}`}>
+												Invited by {referralValidation.referrer_name}
+											</p>
+											<p className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+												They earn commission when you complete registration (pending admin approval)
+											</p>
+										</>
+									) : (
+										<>
+											<p className={`text-sm font-medium ${isDark ? "text-amber-200" : "text-amber-800"}`}>
+												Invalid or expired referral link
+											</p>
+											<p className={`text-xs ${isDark ? "text-amber-300/80" : "text-amber-700"}`}>
+												{referralValidation?.message ?? "You can still register without a referrer"}
+											</p>
+										</>
+									)}
 								</div>
-								<div className={`px-3 py-1 rounded-full text-xs font-medium ${isDark ? "bg-blue-500/20 text-blue-400" : "bg-blue-100 text-blue-700"}`}>
-									Ref: {referralCode}
+								<div
+									className={`px-3 py-1 rounded-full text-xs font-medium ${isDark ? "bg-white/10 text-gray-300" : "bg-gray-100 text-gray-700"
+										}`}
+								>
+									{referralCode}
 								</div>
 							</div>
 						</CardContent>
