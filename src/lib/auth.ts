@@ -12,6 +12,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      allowDangerousEmailAccountLinking: true,
     }),
     CredentialsProvider({
       name: "Credentials",
@@ -37,6 +38,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             email: data.data.user.email,
             name: data.data.user.name,
             role: data.data.user.role,
+            admin_role: data.data.user.admin_role,
             partner_code: data.data.user.partner_code,
           };
         }
@@ -71,6 +73,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         } catch (e) {
           console.error("OAuth sync failed:", e);
         }
+        if (!user.role) {
+          user.role = "partner";
+          (user as { needsOnboarding?: boolean }).needsOnboarding = true;
+        }
       }
       return true;
     },
@@ -78,31 +84,45 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.role = user.role || "partner";
+        token.admin_role = (user as { admin_role?: string }).admin_role;
         token.partner_code = user.partner_code;
         token.needsOnboarding =
           (user as { needsOnboarding?: boolean }).needsOnboarding ??
-          (user.role === "partner" && !user.partner_code);
+          (user.role !== "admin" && !user.partner_code);
       }
+
       if (trigger === "update" && session) {
-        const s = session as {
-          partner_code?: string;
-          id?: string;
-          role?: string;
-        };
-        if (s.partner_code) token.partner_code = s.partner_code;
-        if (s.id) token.id = s.id;
-        if (s.role) token.role = s.role;
-        if (s.partner_code) token.needsOnboarding = false;
+        const raw = session as Record<string, unknown>;
+        const payload =
+          (raw.user as Record<string, unknown> | undefined) ?? raw;
+
+        if (typeof payload.id === "string") token.id = payload.id;
+        if (typeof payload.role === "string") token.role = payload.role;
+        if (typeof payload.partner_code === "string") {
+          token.partner_code = payload.partner_code;
+          token.needsOnboarding = false;
+        }
+        if (payload.needsOnboarding === false) {
+          token.needsOnboarding = false;
+        }
       }
+
+      if (!token.role && token.partner_code) {
+        token.role = "partner";
+      }
+
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.role = (token.role as string) || "partner";
+        session.user.role =
+          (token.role as string) || (token.partner_code ? "partner" : "partner");
         session.user.partner_code = token.partner_code as string | undefined;
+        (session.user as { admin_role?: string }).admin_role =
+          token.admin_role as string | undefined;
         (session.user as { needsOnboarding?: boolean }).needsOnboarding =
-          token.needsOnboarding as boolean;
+          Boolean(token.needsOnboarding) && !token.partner_code;
       }
       return session;
     },
@@ -113,4 +133,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   session: {
     strategy: "jwt",
   },
+  trustHost: true,
 });
