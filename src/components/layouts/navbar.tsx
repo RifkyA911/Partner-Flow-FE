@@ -14,7 +14,7 @@ export function NavbarMenu() {
 	const { theme, toggleTheme } = useTheme();
 
 	const isHomePage = pathname === "/";
-	const isDashboardPage = pathname === "/dashboard";
+	const isDashboardPage = pathname.startsWith("/dashboard");
 	const isDark = theme === "dark";
 
 	const handleLogout = async () => {
@@ -60,8 +60,8 @@ export function NavbarMenu() {
 	// Show navbar on dashboard page with account dropdown
 	if (isDashboardPage) {
 		return (
-			<header className={`w-full backdrop-blur-lg border-b sticky top-0 z-50 ${isDark ? "bg-slate-950/80 border-white/10" : "bg-white/90 border-gray-200"}`}>
-				<div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+			<header className={`backdrop-blur-lg border-b sticky top-0 z-30 ${isDark ? "bg-slate-950/80 border-white/10" : "bg-white/90 border-gray-200"}`}>
+				<div className="px-4 sm:px-6 lg:px-8">
 					<div className="flex items-center justify-between h-14">
 						{/* Logo */}
 						<Link href="/" className="flex items-center gap-2">

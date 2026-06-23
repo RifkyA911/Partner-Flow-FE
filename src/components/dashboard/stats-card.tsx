@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import { HiOutlineUsers, HiOutlineCheckCircle, HiOutlineClock, HiOutlineCurrencyDollar, HiOutlineTrendingUp } from "react-icons/hi";
+import { FaUsers, FaCheckCircle, FaClock, FaDollarSign } from "react-icons/fa";
 
 interface StatsCardProps {
 	icon: React.ReactNode;
@@ -13,7 +13,7 @@ interface StatsCardProps {
 
 export function StatsCard({ icon, title, value, subtitle, isDark }: StatsCardProps) {
 	return (
-		<Card className={isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"}>
+		<Card className={`${isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"} transition-all duration-300 hover:shadow-lg hover:scale-105`}>
 			<CardContent className="p-4 sm:p-6">
 				<div className={`w-6 h-6 mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
 					{icon}
