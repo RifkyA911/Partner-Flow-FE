@@ -3,243 +3,207 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { HiOutlineXCircle } from "react-icons/hi";
+import { FaRegTimesCircle } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
-import { PartnerDashboard } from "@/components/dashboard/partner-dashboard";
+import { PartnerDashboardV2 } from "@/components/dashboard/partner-dashboard-v2";
 import { AdminDashboard } from "@/components/dashboard/admin-dashboard";
+import { Sidebar } from "@/components/layouts/sidebar";
+import { NavbarMenu } from "@/components/layouts/navbar";
 import { baseUrl } from "@/config";
 
 export default function Dashboard() {
-	interface Referral {
-		id: string;
-		referred_name: string;
-		referred_phone: string;
-		commission: number;
-		status: string;
-		created_at: string;
-		referral_code?: string;
-		partner?: {
-			company_name: string;
-		};
-	}
-
-	interface Partner {
-		id: string;
-		partner_code: string;
-		company_name: string;
-		contact_person: string;
-		email: string;
-		phone: string;
-		status: string;
-		created_at: string;
-	}
-
-	interface ActivityItem {
-		type: string;
-		icon: any;
-		title: string;
-		description: string;
-		timestamp: string;
-		color: string;
-	}
-
 	const router = useRouter();
 	const { data: session, status } = useSession();
 	const [isDark, setIsDark] = useState(true);
-	const [showPasswords, setShowPasswords] = useState(false);
+	const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 	const [referralLink, setReferralLink] = useState("");
-	const [referrals, setReferrals] = useState<Referral[]>([]);
-	const [partners, setPartners] = useState<Partner[]>([]);
+	const [referrals, setReferrals] = useState<any[]>([]);
 	const [stats, setStats] = useState({
 		total_referrals: 0,
 		successful_conversions: 0,
 		pending_reviews: 0,
 		this_month: 0,
-		total_partners: 0,
-		active_referrals: 0,
-		total_conversions: 0,
-		total_payouts: 0,
-		recent_activities: [] as ActivityItem[],
+		commission_paid: 0,
+		commission_pending: 0,
+		commission_awaiting_approval: 0,
+		commission_available: 0,
+		commission_locked: 0,
+		in_pipeline: 0,
+		referred_partners: 0,
 	});
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
-		const checkTheme = () => setIsDark(document.documentElement.classList.contains("dark"));
+		const checkTheme = () =>
+			setIsDark(document.documentElement.classList.contains("dark"));
 		checkTheme();
-
 		const observer = new MutationObserver(checkTheme);
-		observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-
+		observer.observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ["class"],
+		});
 		return () => observer.disconnect();
 	}, []);
 
 	useEffect(() => {
-		console.log('status', status);
-		console.log('session', session);
+		if (status === "loading") return;
+
 		if (status === "unauthenticated") {
 			router.push("/auth/login");
 			return;
 		}
 
-		if (session?.user) {
-			// Check if user needs onboarding (no partner_code)
-			const needsOnboarding =
-				(session.user as { needsOnboarding?: boolean }).needsOnboarding ||
-				(!session.user.partner_code && session.user.role === "partner");
-			if (needsOnboarding) {
-				router.push("/auth/onboarding");
-				return;
-			}
+		if (!session?.user) return;
 
-			const userRole = session.user.role;
+		const hasPartnerCode = Boolean(session.user.partner_code);
+		const needsOnboarding =
+			(session.user as { needsOnboarding?: boolean }).needsOnboarding &&
+			!hasPartnerCode;
 
-			if (userRole === "partner") {
-				// Partner-specific logic
-				const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-				const link = `${appUrl}/auth/register?ref=${session.user.partner_code}`;
-				setReferralLink(link);
-				fetchPartnerReferrals(session.user.id);
-			} else if (session?.user?.role === "admin") {
-				// Admin-specific logic
-				fetchAdminData();
-			}
+		if (needsOnboarding) {
+			router.push("/auth/onboarding");
+			return;
 		}
-		setIsLoading(false);
+
+		const userRole =
+			session.user.role || (hasPartnerCode ? "partner" : undefined);
+
+		if (userRole === "partner" && hasPartnerCode) {
+			const appUrl =
+				process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+			setReferralLink(
+				`${appUrl}/auth/register?ref=${session.user.partner_code}`,
+			);
+			fetchPartnerReferrals(session.user.id);
+		} else if (userRole === "admin") {
+			setIsLoading(false);
+		} else {
+			setIsLoading(false);
+		}
 	}, [session, status, router]);
 
 	const fetchPartnerReferrals = async (partnerId: string) => {
 		try {
-			const backendUrl = baseUrl;
-			const res = await fetch(`${backendUrl}/api/referrals?partner_id=${partnerId}`);
-			const data = await res.json();
-			if (data.success) {
-				setReferrals(data.data.referrals);
-				setStats(prev => ({
-					...prev,
-					total_referrals: data.data.referrals.length,
-					successful_conversions: data.data.referrals.filter((r: Referral) => r.status === 'converted').length,
-					pending_reviews: data.data.referrals.filter((r: Referral) => r.status === 'pending').length,
-					this_month: data.data.referrals.filter((r: Referral) => r.status === 'converted').length * 50000,
-				}));
-			} else {
-				setError("Failed to load referrals data");
-			}
-		} catch (error) {
-			console.error("Failed to fetch referrals:", error);
-			setError("Failed to load referrals data");
-		}
-	};
+			const [statsRes, referralsRes] = await Promise.all([
+				fetch(`${baseUrl}/api/referrals/stats?partner_id=${partnerId}`, {
+					cache: "no-store",
+				}),
+				fetch(`${baseUrl}/api/referrals?partner_id=${partnerId}`, {
+					cache: "no-store",
+				}),
+			]);
 
-	const fetchAdminData = async () => {
-		try {
-			const backendUrl = baseUrl;
-			// Fetch partners
-			const partnersRes = await fetch(`${backendUrl}/api/partners`);
-			const partnersData = await partnersRes.json();
-			if (partnersData.success) {
-				setPartners(partnersData.data.partners);
-			} else {
-				setError("Failed to load partners data");
-			}
-
-			// Fetch referrals
-			const referralsRes = await fetch(`${backendUrl}/api/referrals`);
+			const statsData = await statsRes.json();
 			const referralsData = await referralsRes.json();
-			if (referralsData.success) {
-				setReferrals(referralsData.data.referrals);
-			} else {
-				setError("Failed to load referrals data");
-			}
 
-			// Set stats
-			setStats(prev => ({
-				...prev,
-				total_partners: partnersData.data?.partners?.length || 0,
-				active_referrals: referralsData.data?.referrals?.length || 0,
-				total_conversions: referralsData.data?.referrals?.filter((r: Referral) => r.status === 'converted').length || 0,
-				total_payouts: referralsData.data?.referrals?.filter((r: Referral) => r.status === 'converted').length * 50000 || 0,
-			}));
-		} catch (error) {
-			console.error("Failed to fetch admin data:", error);
-			setError("Failed to load admin data");
+			if (statsData.success && referralsData.success) {
+				const s = statsData.data;
+				setReferrals(referralsData.data.referrals);
+				setStats({
+					total_referrals: s.total ?? 0,
+					successful_conversions: s.successful_conversions ?? s.converted ?? 0,
+					pending_reviews: s.pending ?? 0,
+					this_month: s.commission_paid ?? 0,
+					commission_paid: s.commission_paid ?? 0,
+					commission_pending: s.commission_pending ?? 0,
+					commission_awaiting_approval:
+						s.commission_awaiting_generation ??
+						s.commission_awaiting_approval ??
+						0,
+					commission_available: s.commission_available ?? 0,
+					commission_locked: s.commission_locked ?? 0,
+					in_pipeline: s.in_pipeline ?? 0,
+					referred_partners: s.referred_partners ?? 0,
+				});
+			} else {
+				setError("Failed to load dashboard data");
+			}
+		} catch {
+			setError("Failed to load dashboard data");
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
 	const shareOnSocialMedia = (platform: string) => {
 		const text = "Check out this amazing partner referral program!";
 		const url = referralLink;
-
-		let shareUrl = "";
-
-		switch (platform) {
-			case "facebook":
-				shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-				break;
-			case "twitter":
-				shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-				break;
-			case "linkedin":
-				shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent(text)}`;
-				break;
-			case "whatsapp":
-				shareUrl = `https://wa.me/?text=${encodeURIComponent(`${text}\n\n${url}`)}`;
-				break;
-			case "email":
-				shareUrl = `mailto:?subject=${encodeURIComponent("Partner Referral Program")}&body=${encodeURIComponent(`${text}\n\n${url}`)}`;
-				break;
-		}
-
-		if (shareUrl) {
-			window.open(shareUrl, "_blank");
-		}
+		const urls: Record<string, string> = {
+			facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+			twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+			linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent(text)}`,
+			whatsapp: `https://wa.me/?text=${encodeURIComponent(`${text}\n\n${url}`)}`,
+			email: `mailto:?subject=${encodeURIComponent("Partner Referral Program")}&body=${encodeURIComponent(`${text}\n\n${url}`)}`,
+		};
+		if (urls[platform]) window.open(urls[platform], "_blank");
 	};
 
 	const copyToClipboard = (text: string) => {
 		navigator.clipboard.writeText(text);
 	};
 
-	// const session?.user?.role = session?.user?.role;
-
-	// Loading state with skeleton
 	if (isLoading || status === "loading") {
 		return (
-			<main className={`px-4 sm:px-6 lg:px-8 rounded-md lg:py-8 my-8 sm:py-6 w-full max-w-7xl mx-auto ${isDark ? "bg-slate-950 text-white" : "bg-gray-50 text-gray-900"}`}>
+			<main
+				className={`px-4 sm:px-6 lg:px-8 rounded-md lg:py-8 my-8 sm:py-6 w-full max-w-7xl mx-auto ${isDark ? "bg-slate-950 text-white" : "bg-gray-50 text-gray-900"} transition-opacity duration-300`}
+			>
 				<div className="space-y-6">
-					{/* Skeleton Welcome Banner */}
-					<div className={`h-32 rounded-lg animate-pulse ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+					{/* Header skeleton */}
+					<div className="space-y-4">
+						<div className={`h-8 w-1/3 rounded-lg animate-pulse ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+						<div className={`h-4 w-1/2 rounded-lg animate-pulse ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+					</div>
 
-					{/* Skeleton Stats Cards */}
-					<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+					{/* Stats cards skeleton */}
+					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 						{[1, 2, 3, 4].map((i) => (
-							<div key={i} className={`h-32 rounded-lg animate-pulse ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+							<div
+								key={i}
+								className="space-y-3 p-6 rounded-lg border"
+							>
+								<div className={`h-4 w-1/2 rounded animate-pulse ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+								<div className={`h-8 w-3/4 rounded animate-pulse ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+							</div>
 						))}
 					</div>
 
-					{/* Skeleton Referral Tools */}
-					<div className={`h-64 rounded-lg animate-pulse ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+					{/* Referral link skeleton */}
+					<div className="space-y-3 p-6 rounded-lg border">
+						<div className={`h-4 w-1/4 rounded animate-pulse ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+						<div className={`h-12 w-full rounded animate-pulse ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+					</div>
 
-					{/* Skeleton Recent Referrals */}
-					<div className={`h-96 rounded-lg animate-pulse ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+					{/* Referrals table skeleton */}
+					<div className="space-y-4">
+						<div className={`h-6 w-1/4 rounded animate-pulse ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+						<div className="space-y-3">
+							{[1, 2, 3, 4, 5].map((i) => (
+								<div key={i} className="space-y-2 p-4 rounded-lg border">
+									<div className={`h-4 w-1/3 rounded animate-pulse ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+									<div className={`h-3 w-1/4 rounded animate-pulse ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+								</div>
+							))}
+						</div>
+					</div>
 				</div>
 			</main>
 		);
 	}
 
-	// Error state
 	if (error) {
 		return (
-			<main className={`px-4 sm:px-6 lg:px-8 rounded-md lg:py-8 my-8 sm:py-6 w-full max-w-7xl mx-auto ${isDark ? "bg-slate-950 text-white" : "bg-gray-50 text-gray-900"}`}>
-				<div className="flex items-center justify-center py-20">
-					<div className={`text-center ${isDark ? "text-white" : "text-gray-900"}`}>
-						<div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${isDark ? "bg-red-500/20" : "bg-red-100"}`}>
-							<HiOutlineXCircle className={`w-8 h-8 ${isDark ? "text-red-400" : "text-red-600"}`} />
-						</div>
+			<main
+				className={`px-4 sm:px-6 lg:px-8 rounded-md lg:py-8 my-8 sm:py-6 w-full max-w-7xl mx-auto ${isDark ? "bg-slate-950 text-white" : "bg-gray-50 text-gray-900"} transition-opacity duration-300`}
+			>
+				<div className="flex items-center justify-center py-20 text-center">
+					<div>
+						<FaRegTimesCircle className="w-8 h-8 mx-auto mb-4 text-red-400" />
 						<p className="text-lg mb-2">Error Loading Data</p>
-						<p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>{error}</p>
+						<p className="text-sm text-gray-500">{error}</p>
 						<Button
 							onClick={() => window.location.reload()}
-							className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+							className="mt-4"
 						>
 							Retry
 						</Button>
@@ -250,37 +214,35 @@ export default function Dashboard() {
 	}
 
 	return (
-		<>
-			{/* Main Content */}
-			<main className={`px-4 sm:px-6 lg:px-8 rounded-md lg:py-8 my-8 sm:py-6 w-full max-w-7xl mx-auto ${isDark ? "bg-slate-950 text-white" : "bg-gray-50 text-gray-900"}`}>
-				{session?.user?.role === "partner" ? (
-					<PartnerDashboard
-						session={session}
-						stats={stats}
-						referralLink={referralLink}
-						referrals={referrals}
-						isDark={isDark}
-						onCopy={copyToClipboard}
-						onShare={shareOnSocialMedia}
-					/>
-				) : session?.user?.role === "admin" ? (
-					<AdminDashboard
-						stats={stats}
-						partners={partners}
-						referrals={referrals}
-						isDark={isDark}
-						showPasswords={showPasswords}
-						onTogglePasswords={() => setShowPasswords(!showPasswords)}
-					/>
-				) : (
-					<div className="flex items-center justify-center py-20">
-						<div className={`text-center ${isDark ? "text-white" : "text-gray-900"}`}>
-							<p className="text-lg mb-4">Unable to determine user role</p>
-							<p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>Please contact support or try logging in again</p>
+		<div className="flex min-h-screen">
+			<Sidebar isDark={isDark} isCollapsed={isSidebarCollapsed} onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
+			<div className="flex-1 flex flex-col min-h-screen" style={{ marginLeft: isSidebarCollapsed ? '5rem' : '16rem' }}>
+				<NavbarMenu />
+				<main
+					className={`flex-1 px-4 sm:px-6 lg:px-8 py-8 ${isDark ? "bg-slate-950 text-white" : "bg-gray-50 text-gray-900"}`}
+				>
+					{session?.user?.role === "partner" ? (
+						<PartnerDashboardV2
+							session={session}
+							stats={stats}
+							referralLink={referralLink}
+							referrals={referrals}
+							isDark={isDark}
+							onCopy={copyToClipboard}
+							onShare={shareOnSocialMedia}
+						/>
+					) : session?.user?.role === "admin" && session ? (
+						<AdminDashboard session={session} isDark={isDark} />
+					) : (
+						<div className="flex items-center justify-center py-20 text-center">
+							<p className="text-lg mb-2">Unable to determine user role</p>
+							<p className="text-sm text-gray-500">
+								Please contact support or try logging in again
+							</p>
 						</div>
-					</div>
-				)}
-			</main>
-		</>
+					)}
+				</main>
+			</div>
+		</div>
 	);
 }
