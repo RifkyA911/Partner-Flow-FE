@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,9 @@ import {
 	FaTrophy,
 	FaHistory,
 	FaFileAlt,
+	FaUser,
+	FaSignOutAlt,
+	FaChevronDown,
 } from "react-icons/fa";
 
 interface SidebarProps {
@@ -40,6 +43,11 @@ export function Sidebar({ isDark, isCollapsed = false, onToggle }: SidebarProps)
 	const { data: session } = useSession();
 	const pathname = usePathname();
 	const userRole = session?.user?.role || "partner";
+	const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+
+	const handleLogout = async () => {
+		await signOut({ callbackUrl: "/" });
+	};
 
 	const menuItems: MenuItem[] = [
 		{
@@ -87,25 +95,24 @@ export function Sidebar({ isDark, isCollapsed = false, onToggle }: SidebarProps)
 		},
 		{
 			icon: <FaChartBar className="w-5 h-5" />,
-			label: "Analytics",
-			path: "/dashboard/analytics",
+			label: "Commissions",
+			path: "/dashboard/commissions",
 			roles: ["admin"],
-			description: "View detailed analytics and reports",
+			description: "View and manage generated commissions",
 		},
 		{
 			icon: <FaShieldAlt className="w-5 h-5" />,
-			label: "Approvals",
-			path: "/dashboard/approvals",
+			label: "Withdrawals",
+			path: "/dashboard/withdrawals",
 			roles: ["admin"],
-			description: "Approve referrals and withdrawals",
-			badge: "Pending",
+			description: "Approve and process withdrawal requests",
 		},
 		{
 			icon: <FaFileAlt className="w-5 h-5" />,
-			label: "Reports",
-			path: "/dashboard/reports",
+			label: "Audit Log",
+			path: "/dashboard/audit",
 			roles: ["admin"],
-			description: "Generate and view reports",
+			description: "View system audit trail",
 		},
 		{
 			icon: <FaCog className="w-5 h-5" />,
@@ -189,21 +196,72 @@ export function Sidebar({ isDark, isCollapsed = false, onToggle }: SidebarProps)
 				</nav>
 
 				{/* User Info */}
-				{!isCollapsed && session?.user && (
-					<div className="p-4 border-t border-white/10 flex-shrink-0">
-						<div className="flex items-center gap-3">
-							<div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-								{session.user.name?.charAt(0).toUpperCase() || "U"}
+				{session?.user && (
+					<div className="p-4 border-t border-white/10 flex-shrink-0 relative">
+						{!isCollapsed ? (
+							<div className="relative">
+								<button
+									onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+									className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 transition-colors"
+								>
+									<div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+										{session.user.name?.charAt(0).toUpperCase() || "U"}
+									</div>
+									<div className="flex-1 min-w-0 text-left">
+										<p className={`text-sm font-medium truncate ${isDark ? "text-white" : "text-gray-900"}`}>
+											{session.user.name || "User"}
+										</p>
+										<p className={`text-xs truncate ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+											{session.user.email}
+										</p>
+									</div>
+									<FaChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isUserDropdownOpen ? "rotate-180" : ""}`} />
+								</button>
+								{isUserDropdownOpen && (
+									<div className={`absolute bottom-full left-0 right-0 mb-2 rounded-lg shadow-lg border ${isDark ? "bg-slate-800 border-white/10" : "bg-white border-gray-200"}`}>
+										<div className="py-1">
+											<Link href="/dashboard/profile">
+												<div className={`flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer ${isDark ? "text-gray-300 hover:bg-white/10" : "text-gray-700 hover:bg-gray-100"}`}>
+													<FaUser className="w-4 h-4" />
+													Profile
+												</div>
+											</Link>
+											<Link href="/dashboard/settings">
+												<div className={`flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer ${isDark ? "text-gray-300 hover:bg-white/10" : "text-gray-700 hover:bg-gray-100"}`}>
+													<FaCog className="w-4 h-4" />
+													Settings
+												</div>
+											</Link>
+											<div className={`border-t my-1 ${isDark ? "border-white/10" : "border-gray-200"}`}></div>
+											<button
+												onClick={handleLogout}
+												className={`flex items-center gap-3 w-full px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer ${isDark ? "text-gray-300 hover:bg-white/10" : "text-gray-700 hover:bg-gray-100"}`}
+											>
+												<FaSignOutAlt className="w-4 h-4" />
+												Log out
+											</button>
+										</div>
+									</div>
+								)}
 							</div>
-							<div className="flex-1 min-w-0">
-								<p className={`text-sm font-medium truncate ${isDark ? "text-white" : "text-gray-900"}`}>
-									{session.user.name || "User"}
-								</p>
-								<p className={`text-xs truncate ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-									{session.user.email}
-								</p>
-							</div>
-						</div>
+						) : (
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<button
+										onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+										className="w-full flex justify-center p-2 rounded-lg hover:bg-white/10 transition-colors"
+									>
+										<div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+											{session.user.name?.charAt(0).toUpperCase() || "U"}
+										</div>
+									</button>
+								</TooltipTrigger>
+								<TooltipContent side="right" className={isDark ? "bg-slate-800 text-white" : "bg-gray-900 text-white"}>
+									<p className="font-medium">{session.user.name || "User"}</p>
+									<p className="text-xs opacity-80">{session.user.email}</p>
+								</TooltipContent>
+							</Tooltip>
+						)}
 					</div>
 				)}
 			</aside>

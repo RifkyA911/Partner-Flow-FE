@@ -5,6 +5,7 @@ import { NavbarMenu } from "@/components/layouts/navbar";
 import { Footer } from "@/components/layouts/footer";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { LayoutContent } from "@/components/layouts/layout-content";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -31,11 +32,7 @@ export default function RootLayout({
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 				<ThemeProvider>
 					<SessionProvider>
-						<NavbarMenu />
-						<div className="min-h-screen">
-							{children}
-						</div>
-						<Footer />
+						<LayoutContent>{children}</LayoutContent>
 					</SessionProvider>
 				</ThemeProvider>
 			</body>

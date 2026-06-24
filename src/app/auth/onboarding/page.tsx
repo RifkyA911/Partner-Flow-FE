@@ -87,11 +87,6 @@ export default function OnboardingPage() {
 		}
 	}, [session, status, router]);
 
-	// Don't render anything while checking authentication or redirecting
-	if (status === "loading" || (session?.user?.partner_code)) {
-		return null;
-	}
-
 	useEffect(() => {
 		const ref = searchParams.get("ref") || getPendingReferral();
 		if (!ref) return;
@@ -107,6 +102,11 @@ export default function OnboardingPage() {
 			})
 			.catch(() => undefined);
 	}, [searchParams]);
+
+	// Don't render anything while checking authentication or redirecting
+	if (status === "loading" || (session?.user?.partner_code)) {
+		return null;
+	}
 
 	const handleChange = (
 		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -340,7 +340,7 @@ export default function OnboardingPage() {
 				{referralNote && (
 					<div className="mb-6 p-4 rounded-xl border border-green-500/30 bg-green-500/10 flex items-start gap-3">
 						<Gift className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
-						<p className="text-sm text-green-200">{referralNote}</p>
+						<p className="text-sm text-green-800 font-medium">{referralNote}</p>
 					</div>
 				)}
 
