@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { PartnerDashboardV2 } from "@/components/dashboard/partner-dashboard-v2";
 import { AdminDashboard } from "@/components/dashboard/admin-dashboard";
 import { Sidebar } from "@/components/layouts/sidebar";
-import { NavbarMenu } from "@/components/layouts/navbar";
 import { baseUrl } from "@/config";
 
 export default function Dashboard() {
@@ -216,33 +215,31 @@ export default function Dashboard() {
 	return (
 		<div className="flex min-h-screen">
 			<Sidebar isDark={isDark} isCollapsed={isSidebarCollapsed} onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
-			<div className="flex-1 flex flex-col min-h-screen" style={{ marginLeft: isSidebarCollapsed ? '5rem' : '16rem' }}>
-				<NavbarMenu />
-				<main
-					className={`flex-1 px-4 sm:px-6 lg:px-8 py-8 ${isDark ? "bg-slate-950 text-white" : "bg-gray-50 text-gray-900"}`}
-				>
-					{session?.user?.role === "partner" ? (
-						<PartnerDashboardV2
-							session={session}
-							stats={stats}
-							referralLink={referralLink}
-							referrals={referrals}
-							isDark={isDark}
-							onCopy={copyToClipboard}
-							onShare={shareOnSocialMedia}
-						/>
-					) : session?.user?.role === "admin" && session ? (
-						<AdminDashboard session={session} isDark={isDark} />
-					) : (
-						<div className="flex items-center justify-center py-20 text-center">
-							<p className="text-lg mb-2">Unable to determine user role</p>
-							<p className="text-sm text-gray-500">
-								Please contact support or try logging in again
-							</p>
-						</div>
-					)}
-				</main>
-			</div>
+			<main
+				className={`flex-1 px-4 sm:px-6 lg:px-8 py-8 ${isDark ? "bg-slate-950 text-white" : "bg-gray-50 text-gray-900"}`}
+				style={{ marginLeft: isSidebarCollapsed ? '5rem' : '16rem' }}
+			>
+				{session?.user?.role === "partner" ? (
+					<PartnerDashboardV2
+						session={session}
+						stats={stats}
+						referralLink={referralLink}
+						referrals={referrals}
+						isDark={isDark}
+						onCopy={copyToClipboard}
+						onShare={shareOnSocialMedia}
+					/>
+				) : session?.user?.role === "admin" && session ? (
+					<AdminDashboard session={session} isDark={isDark} />
+				) : (
+					<div className="flex items-center justify-center py-20 text-center">
+						<p className="text-lg mb-2">Unable to determine user role</p>
+						<p className="text-sm text-gray-500">
+							Please contact support or try logging in again
+						</p>
+					</div>
+				)}
+			</main>
 		</div>
 	);
 }
