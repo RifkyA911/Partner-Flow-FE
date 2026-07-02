@@ -22,6 +22,7 @@ import {
 	FaUser,
 	FaSignOutAlt,
 	FaChevronDown,
+	FaRobot,
 } from "react-icons/fa";
 
 interface SidebarProps {
@@ -58,13 +59,6 @@ export function Sidebar({ isDark, isCollapsed = false, onToggle }: SidebarProps)
 			description: "Overview of your referral performance and earnings",
 		},
 		{
-			icon: <FaShareAlt className="w-5 h-5" />,
-			label: "Referrals",
-			path: "/dashboard/referrals",
-			roles: ["partner", "admin"],
-			description: "Manage and track all your referrals",
-		},
-		{
 			icon: <FaWallet className="w-5 h-5" />,
 			label: "Wallet",
 			path: "/dashboard/wallet",
@@ -85,6 +79,20 @@ export function Sidebar({ isDark, isCollapsed = false, onToggle }: SidebarProps)
 			path: "/dashboard/history",
 			roles: ["partner"],
 			description: "View your transaction and referral history",
+		},
+		{
+			icon: <FaCog className="w-5 h-5" />,
+			label: "Settings",
+			path: "/dashboard/settings",
+			roles: ["partner"],
+			description: "Manage your account settings",
+		},
+		{
+			icon: <FaShareAlt className="w-5 h-5" />,
+			label: "Referrals",
+			path: "/dashboard/referrals",
+			roles: ["admin"],
+			description: "Manage and track all referrals",
 		},
 		{
 			icon: <FaUsers className="w-5 h-5" />,
@@ -115,11 +123,11 @@ export function Sidebar({ isDark, isCollapsed = false, onToggle }: SidebarProps)
 			description: "View system audit trail",
 		},
 		{
-			icon: <FaCog className="w-5 h-5" />,
-			label: "Settings",
-			path: "/dashboard/settings",
-			roles: ["partner", "admin"],
-			description: "Manage your account settings",
+			icon: <FaRobot className="w-5 h-5" />,
+			label: "AI Chat",
+			path: "/chat",
+			roles: ["admin"],
+			description: "Chat with AI assistant for help and questions",
 		},
 	];
 
@@ -128,9 +136,8 @@ export function Sidebar({ isDark, isCollapsed = false, onToggle }: SidebarProps)
 	return (
 		<TooltipProvider>
 			<aside
-				className={`fixed left-0 top-0 h-screen z-40 flex flex-col transition-all duration-300 ease-in-out ${
-					isCollapsed ? "w-20" : "w-64"
-				} ${isDark ? "bg-slate-900 border-r border-white/10" : "bg-white border-r border-gray-200"}`}
+				className={`fixed left-0 top-0 h-screen z-40 flex flex-col transition-all duration-300 ease-in-out ${isCollapsed ? "w-20" : "w-64"
+					} ${isDark ? "bg-slate-900 border-r border-white/10" : "bg-white border-r border-gray-200"}`}
 			>
 				{/* Header */}
 				<div className="p-4 border-b border-white/10 flex-shrink-0 flex items-center justify-between">
@@ -163,15 +170,14 @@ export function Sidebar({ isDark, isCollapsed = false, onToggle }: SidebarProps)
 								<TooltipTrigger asChild>
 									<Link
 										href={item.path}
-										className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${
-											isActive
+										className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${isActive
 												? isDark
 													? "bg-blue-600 text-white"
 													: "bg-blue-600 text-white"
 												: isDark
-												? "text-gray-300 hover:bg-white/10"
-												: "text-gray-700 hover:bg-gray-100"
-										} ${isCollapsed ? "justify-center" : ""}`}
+													? "text-gray-300 hover:bg-white/10"
+													: "text-gray-700 hover:bg-gray-100"
+											} ${isCollapsed ? "justify-center" : ""}`}
 									>
 										<span className="flex-shrink-0">{item.icon}</span>
 										{!isCollapsed && (
@@ -272,11 +278,10 @@ export function Sidebar({ isDark, isCollapsed = false, onToggle }: SidebarProps)
 function Badge({ children, variant, className }: { children: React.ReactNode; variant?: string; className?: string }) {
 	return (
 		<span
-			className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-				variant === "secondary"
+			className={`px-2 py-0.5 rounded-full text-xs font-medium ${variant === "secondary"
 					? "bg-blue-500/20 text-blue-400"
 					: "bg-green-500/20 text-green-400"
-			} ${className}`}
+				} ${className}`}
 		>
 			{children}
 		</span>

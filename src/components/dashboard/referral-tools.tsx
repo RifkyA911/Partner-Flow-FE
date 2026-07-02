@@ -17,15 +17,15 @@ interface ReferralToolsProps {
 export function ReferralTools({ referralLink, isDark, onCopy, onShare }: ReferralToolsProps) {
 	return (
 		<TooltipProvider>
-			<Card className={`mb-6 sm:mb-8 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"} transition-all duration-300 hover:shadow-lg`}>
+			<Card className={`${isDark ? "bg-slate-800/50 border-blue-500/20" : "bg-white border-blue-200"} shadow-lg hover:shadow-xl transition-all duration-300 mb-6 sm:mb-8`}>
 				<CardHeader className="p-4 sm:p-6">
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-3">
-							<div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-								<FaNetworkWired className="w-5 h-5 text-white" />
+							<div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+								<FaNetworkWired className="w-6 h-6 text-white" />
 							</div>
 							<div>
-								<CardTitle className={`text-lg sm:text-xl font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
+								<CardTitle className={`text-lg sm:text-xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
 									Referral Tools
 								</CardTitle>
 								<p className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}>
@@ -57,19 +57,19 @@ export function ReferralTools({ referralLink, isDark, onCopy, onShare }: Referra
 						</div>
 					</div>
 
-					<div className={`flex flex-col sm:flex-row sm:items-center gap-2 p-3 rounded-lg border transition-all duration-300 ${isDark ? "bg-slate-900 border-white/10 hover:border-white/20" : "bg-gray-50 border-gray-200 hover:border-gray-300"}`}>
+					<div className={`flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-xl border transition-all duration-300 hover:scale-[1.01] ${isDark ? "bg-slate-900/50 border-blue-500/20 hover:border-blue-500/30" : "bg-blue-50 border-blue-200 hover:border-blue-300"}`}>
 						<input
 							type="text"
 							readOnly
 							value={referralLink}
-							className={`flex-1 bg-transparent text-xs sm:text-sm outline-none ${isDark ? "text-gray-300" : "text-gray-700"}`}
+							className={`flex-1 bg-transparent text-sm outline-none ${isDark ? "text-gray-300" : "text-gray-700"}`}
 						/>
 						<div className="flex gap-2">
 							<Tooltip>
 								<TooltipTrigger asChild>
 									<Button
 										size="sm"
-										className={`gap-2 bg-transparent text-xs sm:text-sm transition-all duration-300 ${isDark ? "border-blue-500/30 text-blue-400 hover:bg-blue-500/10 hover:scale-105" : "border-blue-300 text-blue-600 hover:bg-blue-50 hover:scale-105"}`}
+										className={`gap-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm transition-all duration-300 hover:scale-105 shadow-md`}
 										onClick={() => onCopy(referralLink)}
 									>
 										<FaRegCopy className="w-4 h-4" />
@@ -84,7 +84,7 @@ export function ReferralTools({ referralLink, isDark, onCopy, onShare }: Referra
 								<TooltipTrigger asChild>
 									<Button
 										size="sm"
-										className={`gap-2 bg-transparent text-xs sm:text-sm transition-all duration-300 ${isDark ? "border-purple-500/30 text-purple-400 hover:bg-purple-500/10 hover:scale-105" : "border-purple-300 text-purple-600 hover:bg-purple-50 hover:scale-105"}`}
+										className={`gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm transition-all duration-300 hover:scale-105 shadow-md`}
 									>
 										<IoQrCodeOutline className="w-4 h-4" />
 										QR
@@ -121,14 +121,11 @@ export function ReferralTools({ referralLink, isDark, onCopy, onShare }: Referra
 								<TooltipTrigger asChild>
 									<Button
 										size="sm"
-										className={`gap-2 bg-transparent text-xs sm:text-sm transition-all duration-300 flex flex-col h-auto py-3 ${isDark
-											? "border-blue-600/30 text-blue-400 hover:bg-blue-600/10 hover:scale-105"
-											: "border-blue-300 text-blue-600 hover:bg-blue-50 hover:scale-105"
-											}`}
+										className={`gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-xs sm:text-sm transition-all duration-300 flex flex-col h-auto py-4 hover:scale-105 shadow-md`}
 										onClick={() => onShare("facebook")}
 									>
 										<FaFacebook className="w-5 h-5" />
-										<span className="text-xs">Facebook</span>
+										<span className="text-xs font-medium">Facebook</span>
 									</Button>
 								</TooltipTrigger>
 								<TooltipContent>
@@ -139,14 +136,11 @@ export function ReferralTools({ referralLink, isDark, onCopy, onShare }: Referra
 								<TooltipTrigger asChild>
 									<Button
 										size="sm"
-										className={`gap-2 bg-transparent text-xs sm:text-sm transition-all duration-300 flex flex-col h-auto py-3 ${isDark
-											? "border-sky-500/30 text-sky-400 hover:bg-sky-500/10 hover:scale-105"
-											: "border-sky-300 text-sky-600 hover:bg-sky-50 hover:scale-105"
-											}`}
+										className={`gap-2 bg-gradient-to-r from-sky-500 to-sky-600 text-white text-xs sm:text-sm transition-all duration-300 flex flex-col h-auto py-4 hover:scale-105 shadow-md`}
 										onClick={() => onShare("twitter")}
 									>
 										<FaTwitter className="w-5 h-5" />
-										<span className="text-xs">Twitter</span>
+										<span className="text-xs font-medium">Twitter</span>
 									</Button>
 								</TooltipTrigger>
 								<TooltipContent>
@@ -157,14 +151,11 @@ export function ReferralTools({ referralLink, isDark, onCopy, onShare }: Referra
 								<TooltipTrigger asChild>
 									<Button
 										size="sm"
-										className={`gap-2 bg-transparent text-xs sm:text-sm transition-all duration-300 flex flex-col h-auto py-3 ${isDark
-											? "border-blue-700/30 text-blue-500 hover:bg-blue-700/10 hover:scale-105"
-											: "border-blue-700 text-blue-700 hover:bg-blue-50 hover:scale-105"
-											}`}
+										className={`gap-2 bg-gradient-to-r from-blue-700 to-blue-800 text-white text-xs sm:text-sm transition-all duration-300 flex flex-col h-auto py-4 hover:scale-105 shadow-md`}
 										onClick={() => onShare("linkedin")}
 									>
 										<FaLinkedin className="w-5 h-5" />
-										<span className="text-xs">LinkedIn</span>
+										<span className="text-xs font-medium">LinkedIn</span>
 									</Button>
 								</TooltipTrigger>
 								<TooltipContent>
@@ -175,14 +166,11 @@ export function ReferralTools({ referralLink, isDark, onCopy, onShare }: Referra
 								<TooltipTrigger asChild>
 									<Button
 										size="sm"
-										className={`gap-2 bg-transparent text-xs sm:text-sm transition-all duration-300 flex flex-col h-auto py-3 ${isDark
-											? "border-green-600/30 text-green-400 hover:bg-green-600/10 hover:scale-105"
-											: "border-green-300 text-green-600 hover:bg-green-50 hover:scale-105"
-											}`}
+										className={`gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs sm:text-sm transition-all duration-300 flex flex-col h-auto py-4 hover:scale-105 shadow-md`}
 										onClick={() => onShare("whatsapp")}
 									>
 										<FaWhatsapp className="w-5 h-5" />
-										<span className="text-xs">WhatsApp</span>
+										<span className="text-xs font-medium">WhatsApp</span>
 									</Button>
 								</TooltipTrigger>
 								<TooltipContent>
@@ -193,14 +181,11 @@ export function ReferralTools({ referralLink, isDark, onCopy, onShare }: Referra
 								<TooltipTrigger asChild>
 									<Button
 										size="sm"
-										className={`gap-2 bg-transparent text-xs sm:text-sm transition-all duration-300 flex flex-col h-auto py-3 ${isDark
-											? "border-gray-500/30 text-gray-400 hover:bg-gray-500/10 hover:scale-105"
-											: "border-gray-300 text-gray-600 hover:bg-gray-50 hover:scale-105"
-											}`}
+										className={`gap-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-xs sm:text-sm transition-all duration-300 flex flex-col h-auto py-4 hover:scale-105 shadow-md`}
 										onClick={() => onShare("email")}
 									>
 										<FaEnvelope className="w-5 h-5" />
-										<span className="text-xs">Email</span>
+										<span className="text-xs font-medium">Email</span>
 									</Button>
 								</TooltipTrigger>
 								<TooltipContent>
@@ -211,16 +196,16 @@ export function ReferralTools({ referralLink, isDark, onCopy, onShare }: Referra
 					</div>
 
 					{/* Info Box */}
-					<div className={`p-4 rounded-xl border ${isDark
+					<div className={`p-5 rounded-xl border transition-all duration-300 hover:scale-[1.01] ${isDark
 						? "bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/20"
 						: "bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200"
 						}`}>
 						<div className="flex items-start gap-3">
-							<div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-								<FaNetworkWired className="w-4 h-4 text-white" />
+							<div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+								<FaNetworkWired className="w-5 h-5 text-white" />
 							</div>
 							<div>
-								<h4 className={`font-semibold text-sm mb-1 ${isDark ? "text-white" : "text-gray-900"}`}>
+								<h4 className={`font-bold text-sm mb-2 ${isDark ? "text-white" : "text-gray-900"}`}>
 									How Referrals Work
 								</h4>
 								<p className={`text-xs leading-relaxed ${isDark ? "text-gray-400" : "text-gray-600"}`}>
