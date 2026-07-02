@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { HiOutlineClipboardCopy } from "react-icons/hi";
 import { baseUrl } from "@/config";
+import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 
 const PARTNER_STATUS_CONFIG: Record<string, { label: string; bgColor: string; textColor: string }> = {
 	active: { label: "Active", bgColor: "bg-green-500/20", textColor: "text-green-500" },
@@ -73,8 +74,9 @@ export default function PartnersPage() {
 	}
 
 	return (
-		<div className="space-y-6">
-			<Card className={isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"}>
+		<DashboardLayout>
+			<div className="space-y-6">
+				<Card className={isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"}>
 				<CardHeader>
 					<div className="flex items-center justify-between">
 						<div>
@@ -131,6 +133,7 @@ export default function PartnersPage() {
 					{message}
 				</div>
 			)}
-		</div>
+			</div>
+		</DashboardLayout>
 	);
 }

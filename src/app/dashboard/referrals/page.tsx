@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { HiOutlineCheckCircle, HiOutlineXCircle } from "react-icons/hi";
 import { baseUrl } from "@/config";
+import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 
 type LifecycleStatus =
 	| "created"
@@ -167,8 +168,9 @@ export default function ReferralsPage() {
 	}
 
 	return (
-		<div className="space-y-6">
-			<Card className={isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"}>
+		<DashboardLayout>
+			<div className="space-y-6">
+				<Card className={isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"}>
 				<CardHeader>
 					<div className="flex items-center justify-between">
 						<div>
@@ -283,6 +285,7 @@ export default function ReferralsPage() {
 					{message}
 				</div>
 			)}
-		</div>
+			</div>
+		</DashboardLayout>
 	);
 }
